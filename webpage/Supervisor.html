@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Supervisors - Thesis Management System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #e0f0ff, #b3d9ff);
+      color: #003366;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background-color: #d0e7f9;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 10px;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: #003366;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #c0ddf0;
+    }
+
+    .sidebar a.active {
+      background-color: #0055cc;
+      color: white;
+    }
+
+    /* Main section */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Topbar */
+    .topbar {
+      background-color: #c0ddf0;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .topbar h1 {
+      font-size: 20px;
+      color: #002244;
+      margin: 0;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box input {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    /* Content area */
+    .content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      overflow-y: auto;
+    }
+
+    .date-display {
+      text-align: right;
+      padding: 10px 20px;
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    /* Supervisor Lists Styles */
+    .supervisor-container {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 15px;
+    }
+
+    .tab-button {
+      padding: 10px 20px;
+      background-color: #d0e7f9;
+      border: none;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      color: #004080;
+    }
+
+    .tab-button.active {
+      background-color: white;
+      border-bottom: 2px solid white;
+    }
+
+    .tab-button:hover:not(.active) {
+      background-color: #c0ddf0;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+    
+    .supervisor-list {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th {
+      background-color: #e0f0ff;
+      padding: 12px 15px;
+      text-align: left;
+      color: #004080;
+      font-weight: bold;
+      border-bottom: 1px solid #b3d9ff;
+    }
+    
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e6f2ff;
+      vertical-align: top;
+    }
+    
+    tr:last-child td {
+      border-bottom: none;
+    }
+    
+    tr:hover {
+      background-color: #f5f9ff;
+    }
+    
+    .initials {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: #0055cc;
+      color: white;
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
+    .name {
+      font-weight: bold;
+      color: #004080;
+      margin-top: 8px;
+    }
+    
+    .department {
+      font-size: 0.9em;
+      color: #666;
+    }
+    
+    .interest-tag {
+      display: inline-block;
+      background-color: #e0f0ff;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.9em;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      border: 1px solid #b3d9ff;
+    }
+    
+    .btn {
+      background-color: #0055cc;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background-color: #0044aa;
+    }
+    
+    .btn-disabled {
+      background-color: #c0c0c0;
+      cursor: not-allowed;
+    }
+    
+    .status {
+      font-size: 0.9em;
+      display: block;
+      margin-top: 5px;
+    }
+    
+    .status-full {
+      color: #d9534f;
+    }
+    
+    .status-available {
+      color: #5cb85c;
+    }
+
+    /* Search and filter */
+    .filter-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      gap: 10px;
+    }
+
+    .filter-container select {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: white;
+    }
+
+    .filter-container input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      flex-grow: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <a href="#">Team Search</a>
+    <a href="#" class="active">Supervisor</a>
+    <a href="#">Schedule</a>
+    <a href="#">Notification</a>
+    <a href="#">Submit Thesis</a>
+    <a href="#">Feedback</a>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>THESIS MANAGEMENT SYSTEM</h1>
+      <div class="search-box">
+        <label for="search" style="margin-right: 8px;">Search</label>
+        <input type="text" id="search" placeholder="Search...">
+      </div>
+    </div>
+
+    <div class="date-display">
+      2025-05-05 15:33:16 UTC
+    </div>
+
+    <div class="content">
+      <div class="supervisor-container">
+        <div class="tabs">
+          <button class="tab-button active" data-tab="supervisors">Supervisors</button>
+          <button class="tab-button" data-tab="co-supervisors">Co-Supervisors</button>
+        </div>
+
+        <div id="supervisors" class="tab-content active">
+          <div class="filter-container">
+            <select id="department-filter">
+              <option value="">All Departments</option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Electrical Engineering">Electrical Engineering</option>
+              <option value="Mechanical Engineering">Mechanical Engineering</option>
+            </select>
+            <input type="text" placeholder="Search by name or research interest..." id="supervisor-search">
+          </div>
+
+          <div class="supervisor-list">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 20%;">Faculty</th>
+                  <th style="width: 50%;">Research Interests</th>
+                  <th style="width: 30%;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="initials">JW</div>
+                    <div class="name">Dr. James Wilson</div>
+                    <div class="department">Computer Science</div>
+                  </td>
+                  <td>
+                    <div class="interest-tag">Machine Learning</div>
+                    <div class="interest-tag">Artificial Intelligence</div>
+                    <div class="interest-tag">Data Science</div>
+                    <div class="interest-tag">Neural Networks</div>
+                  </td>
+                  <td>
+                    <button class="btn">Request</button>
+                    <span class="status status-available">Available (3/5 slots)</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="initials">SC</div>
+                    <div class="name">Dr. Sarah Chen</div>
+                    <div class="department">Electrical Engineering</div>
+                  </td>
+                  <td>
+                    <div class="interest-tag">Robotics</div>
+                    <div class="interest-tag">Computer Vision</div>
+                    <div class="interest-tag">Embedded Systems</div>
+                  </td>
+                  <td>
+                    <button class="btn">Request</button>
+                    <span class="status status-available">Available (2/4 slots)</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="initials">RM</div>
+                    <div class="name">Dr. Robert Miller</div>
+                    <div class="department">Computer Science</div>
+                  </td>
+                  <td>
+                    <div class="interest-tag">Cybersecurity</div>
+                    <div class="interest-tag">Network Analysis</div>
+                    <div class="interest-tag">Cryptography</div>
+                  </td>
+                  <td>
+                    <button class="btn btn-disabled" disabled>Request</button>
+                    <span class="status status-full">Full (5/5 slots)</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="initials">AP</div>
+                    <div class="name">Dr. Amanda Patel</div>
+                    <div class="department">Computer Science</div>
+                  </td>
+                  <td>
+                    <div class="interest-tag">Natural Language Processing</div>
+                    <div class="interest-tag">Speech Recognition</div>
+                    <div class="interest-tag">Machine Learning</div>
+                  </td>
+                  <td>
+                    <button class="btn">Request</button>
+                    <span class="status status-available">Available (1/4 slots)</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="co-supervisors" class="tab-content">
+          <div class="filter-container">
+            <select id="co-department-filter">
+              <option value="">All Departments</option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Electrical Engineering">Electrical Engineering</option>
+              <option value="Mechanical Engineering">Mechanical Engineering</option>
+            </select>
+            <input type="text" placeholder="Search by name or research interest..." id="co-supervisor-search">
+          </div>
+
+          <div class="supervisor-list">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 20%;">Faculty</th>
+                  <th style="width: 50%;">Research Interests</th>
+                  <th style="width: 30%;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="initials">EJ</div>
+                    <div class="name">Dr. Emily Johnson</div>
+                    <div class="department">Computer Science</div>
+                  </td>
+                  <td>
+                    <div class="interest-tag">Data Analysis</div>
+                    <div class="interest-tag">Computer Vision</div>
+                    <div class="interest-tag">Natural Language Processing</div>
+                  </td>
+                  <td>
+                    <button class="btn">Request</button>
+                    <span class="status status-available">Available (4/5 slots)</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="initials">DT</div>
+                    <div class="name">Dr. David Thompson</div>
+                    <div class="department">Mechanical Engineering</div>
+                  </td>
+                  <td>
+                    <div class="interest-tag">Automation</div>
+                    <div class="interest-tag">Manufacturing Systems</div>
+                    <div class="interest-tag">IoT Applications</div>
+                  </td>
+                  <td>
+                    <button class="btn">Request</button>
+                    <span class="status status-available">Available (2/3 slots)</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="initials">KL</div>
+                    <div class="name">Dr. Karen Lee</div>
+                    <div class="department">Electrical Engineering</div>
+                  </td>
+                  <td>
+                    <div class="interest-tag">Signal Processing</div>
+                    <div class="interest-tag">Sensor Networks</div>
+                    <div class="interest-tag">Wireless Communications</div>
+                  </td>
+                  <td>
+                    <button class="btn btn-disabled" disabled>Request</button>
+                    <span class="status status-full">Full (3/3 slots)</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="initials">MB</div>
+                    <div class="name">Dr. Michael Brown</div>
+                    <div class="department">Computer Science</div>
+                  </td>
+                  <td>
+                    <div class="interest-tag">Blockchain</div>
+                    <div class="interest-tag">Distributed Systems</div>
+                    <div class="interest-tag">Software Architecture</div>
+                  </td>
+                  <td>
+                    <button class="btn">Request</button>
+                    <span class="status status-available">Available (3/4 slots)</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const tabButtons = document.querySelectorAll('.tab-button');
+      
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Remove active class from all buttons and content
+          document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+          });
+          document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+          });
+          
+          // Add active class to clicked button and corresponding content
+          this.classList.add('active');
+          const tabId = this.getAttribute('data-tab');
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+      
+      // Simple search functionality for supervisors
+      document.getElementById('supervisor-search').addEventListener('input', function() {
+        filterSupervisors(this.value, 'supervisors');
+      });
+      
+      // Simple search functionality for co-supervisors
+      document.getElementById('co-supervisor-search').addEventListener('input', function() {
+        filterSupervisors(this.value, 'co-supervisors');
+      });
+      
+      // Department filter for supervisors
+      document.getElementById('department-filter').addEventListener('change', function() {
+        filterDepartment(this.value, 'supervisors');
+      });
+      
+      // Department filter for co-supervisors
+      document.getElementById('co-department-filter').addEventListener('change', function() {
+        filterDepartment(this.value, 'co-supervisors');
+      });
+      
+      // Request button functionality
+      document.querySelectorAll('.btn').forEach(button => {
+        if (!button.classList.contains('btn-disabled')) {
+          button.addEventListener('click', function() {
+            const facultyName = this.closest('tr').querySelector('.name').textContent;
+            alert(`Request sent to ${facultyName}. You will be notified when they respond.`);
+          });
+        }
+      });
+    });
+    
+    // Function to filter supervisors by search term
+    function filterSupervisors(searchTerm, tabId) {
+      searchTerm = searchTerm.toLowerCase();
+      const rows = document.getElementById(tabId).querySelectorAll('tbody tr');
+      
+      rows.forEach(row => {
+        const name = row.querySelector('.name').textContent.toLowerCase();
+        const department = row.querySelector('.department').textContent.toLowerCase();
+        const interests = Array.from(row.querySelectorAll('.interest-tag'))
+          .map(tag => tag.textContent.toLowerCase());
+        
+        if (name.includes(searchTerm) || department.includes(searchTerm) || 
+            interests.some(interest => interest.includes(searchTerm))) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+    
+    // Function to filter by department
+    function filterDepartment(department, tabId) {
+      const rows = document.getElementById(tabId).querySelectorAll('tbody tr');
+      
+      rows.forEach(row => {
+        const rowDepartment = row.querySelector('.department').textContent;
+        
+        if (department === '' || rowDepartment === department) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

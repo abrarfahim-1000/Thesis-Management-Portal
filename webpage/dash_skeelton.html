@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Dashboard - Thesis Management System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #e0f0ff, #b3d9ff);
+      color: #003366;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background-color: #d0e7f9;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 10px;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: #003366;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #c0ddf0;
+    }
+
+    /* Main section */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Topbar */
+    .topbar {
+      background-color: #c0ddf0;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .topbar h1 {
+      font-size: 20px;
+      color: #002244;
+      margin: 0;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box input {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    /* Content area */
+    .content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .date-display {
+      text-align: right;
+      padding: 10px 20px;
+      color: #666;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <a href="#">Team Search</a>
+    <a href="#">Supervisor</a>
+    <a href="#">Schedule</a>
+    <a href="#">Notification</a>
+    <a href="#">Submit Thesis</a>
+    <a href="#">Feedback</a>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>THESIS MANAGEMENT SYSTEM</h1>
+      <div class="search-box">
+        <label for="search" style="margin-right: 8px;">Search</label>
+        <input type="text" id="search" placeholder="Search...">
+      </div>
+    </div>
+
+    <div class="date-display">
+      2025-05-05 15:08:21 UTC
+    </div>
+
+    <div class="content">
+      <!-- Content area is intentionally left empty as per requirement -->
+      <!-- You can add your dynamic content here later -->
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Feedback - Thesis Management System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #e0f0ff, #b3d9ff);
+      color: #003366;
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 200px;
+      background-color: #d0e7f9;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 10px;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: #003366;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #c0ddf0;
+    }
+
+    .sidebar a.active {
+      background-color: #0055cc;
+      color: white;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .topbar {
+      background-color: #c0ddf0;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .topbar h1 {
+      font-size: 20px;
+      color: #002244;
+      margin: 0;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .date-display {
+      text-align: right;
+      padding: 10px 20px;
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      overflow-y: auto;
+    }
+
+    .feedback-container {
+      width: 100%;
+      max-width: 800px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    .feedback-header {
+      font-size: 24px;
+      font-weight: bold;
+      color: #004080;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e6f2ff;
+      margin-bottom: 20px;
+    }
+
+    .feedback-item {
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      background-color: #f5f9ff;
+      border-left: 4px solid #0055cc;
+    }
+
+    .feedback-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .feedback-topic {
+      font-weight: bold;
+      color: #004080;
+      font-size: 18px;
+    }
+
+    .feedback-ids {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .feedback-text {
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .feedback-faculty {
+      margin-top: 10px;
+      font-style: italic;
+      color: #0055cc;
+      text-align: right;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <a href="#">Team Search</a>
+    <a href="#">Supervisor</a>
+    <a href="#">Schedule</a>
+    <a href="#" class="active">Feedback</a>
+    <a href="#">Submit Thesis</a>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>THESIS MANAGEMENT SYSTEM</h1>
+      <div class="user-info">
+        <span>abrarfahim-1000</span>
+      </div>
+    </div>
+
+    <div class="date-display">
+      2025-05-05 19:00:21 UTC
+    </div>
+
+    <div class="content">
+      <div class="feedback-container">
+        <div class="feedback-header">Thesis Feedback</div>
+        
+        <div class="feedback-item">
+          <div class="feedback-meta">
+            <div class="feedback-topic">Research Methodology</div>
+            <div class="feedback-ids">Team ID: 1 | Thesis ID: 101</div>
+          </div>
+          <div class="feedback-text">
+            The methodology section is comprehensive but needs more clarity on data collection procedures. 
+            Please elaborate on the sampling techniques and justify your choice of methods. 
+            The statistical analysis plan is solid, but consider adding power calculations.
+          </div>
+          <div class="feedback-faculty">- Dr. James Wilson</div>
+        </div>
+        
+        <div class="feedback-item">
+          <div class="feedback-meta">
+            <div class="feedback-topic">Literature Review</div>
+            <div class="feedback-ids">Team ID: 1 | Thesis ID: 101</div>
+          </div>
+          <div class="feedback-text">
+            Excellent work on synthesizing recent research. Your critical analysis of Smith et al. (2023) 
+            was particularly insightful. Consider expanding on the theoretical framework section and 
+            connecting it more explicitly to your research questions. 
+            Add 2-3 more recent papers (2024-2025) to strengthen your argument.
+          </div>
+          <div class="feedback-faculty">- Dr. Emily Johnson</div>
+        </div>
+        
+        <div class="feedback-item">
+          <div class="feedback-meta">
+            <div class="feedback-topic">Data Analysis</div>
+            <div class="feedback-ids">Team ID: 1 | Thesis ID: 101</div>
+          </div>
+          <div class="feedback-text">
+            The preliminary data analysis shows promise. Your approach to handling missing data is 
+            appropriate, but I suggest documenting the percentage of missing values for each variable. 
+            The visualization in Figure 3 effectively communicates your findings, but consider using 
+            a different color scheme for better accessibility.
+          </div>
+          <div class="feedback-faculty">- Dr. James Wilson</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

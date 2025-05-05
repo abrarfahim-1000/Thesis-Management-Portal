@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Apply as Co-Supervisor - Thesis Management System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #e0f0ff, #b3d9ff);
+      color: #003366;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background-color: #d0e7f9;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 10px;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: #003366;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    .sidebar a.active {
+      background-color: #0055cc;
+      color: white;
+    }
+
+    .sidebar a:hover:not(.active) {
+      background-color: #c0ddf0;
+    }
+
+    /* Main section */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Topbar */
+    .topbar {
+      background-color: #c0ddf0;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .topbar h1 {
+      font-size: 20px;
+      color: #002244;
+      margin: 0;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box input {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    /* Content area */
+    .content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .header-title {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 800px;
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #004080;
+      font-weight: bold;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    textarea.form-control {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .interest-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .interest-tag {
+      background-color: #e0f0ff;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      border: 1px solid #b3d9ff;
+    }
+
+    .tag-remove {
+      margin-left: 8px;
+      cursor: pointer;
+      color: #0055cc;
+      font-weight: bold;
+    }
+
+    .btn {
+      background-color: #0055cc;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background-color: #0044aa;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+    }
+
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .date-display {
+      text-align: right;
+      padding: 10px 20px;
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .page-info {
+      color: #666;
+      font-size: 0.9em;
+      margin-top: 15px;
+      background-color: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      border-left: 4px solid #0055cc;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <a href="#">Apply as Supervisor</a>
+    <a href="#" class="active">Apply as Co-Supervisor</a>
+    <a href="#">Schedule</a>
+    <a href="#">Notification</a>
+    <a href="faculty-dashboard.html">Dashboard</a>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>THESIS MANAGEMENT SYSTEM</h1>
+      <div class="search-box">
+        <label for="search" style="margin-right: 8px;">Search</label>
+        <input type="text" id="search" placeholder="Search...">
+      </div>
+    </div>
+
+    <div class="date-display">
+      2025-05-05 15:12:57 UTC
+    </div>
+
+    <div class="content">
+      <div class="header-title">
+        <h2>Apply as Thesis Co-Supervisor</h2>
+      </div>
+
+      <div class="card">
+        <form id="cosupervisorForm" action="submit-cosupervisor.php" method="post">
+          <div class="form-group">
+            <label for="research_interests">Research Interests</label>
+            <input type="text" id="interest_input" class="form-control" placeholder="Type interest and press Enter to add">
+            <div class="interest-tags" id="interestTags">
+              <!-- Tags will appear here -->
+            </div>
+            <input type="hidden" id="research_interests" name="research_interests">
+          </div>
+
+          <div class="form-group">
+            <label for="max_students">Maximum Number of Students</label>
+            <input type="number" id="max_students" name="max_students" class="form-control" min="1" max="10" value="5">
+          </div>
+
+          <div class="form-group">
+            <label for="requirements">Requirements for Students</label>
+            <textarea id="requirements" name="requirements" class="form-control" placeholder="Describe the requirements and expectations for students who wish to do their thesis under your co-supervision..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="availability">Availability</label>
+            <textarea id="availability" name="availability" class="form-control" placeholder="Describe your availability for meetings and co-supervision..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="preferred_topics">Preferred Thesis Topics</label>
+            <textarea id="preferred_topics" name="preferred_topics" class="form-control" placeholder="List or describe preferred thesis topics..."></textarea>
+          </div>
+
+          <div class="page-info">
+            <p>After submission, this information will be displayed on the Co-Supervisor page visible to students. Students can view your profile and research interests when selecting a thesis co-supervisor.</p>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='faculty-dashboard.html'">Cancel</button>
+            <button type="submit" class="btn">Submit Application</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // JavaScript to handle interest tags
+    document.addEventListener('DOMContentLoaded', function() {
+      const interestInput = document.getElementById('interest_input');
+      const interestTags = document.getElementById('interestTags');
+      const hiddenInput = document.getElementById('research_interests');
+      let interests = [];
+
+      // Function to update the hidden input value
+      function updateHiddenInput() {
+        hiddenInput.value = JSON.stringify(interests);
+      }
+
+      // Function to add a new tag
+      function addTag(interest) {
+        if (interest.trim() === '') return;
+        if (interests.includes(interest.trim())) return;
+        
+        interests.push(interest.trim());
+        updateHiddenInput();
+        
+        const tagElement = document.createElement('div');
+        tagElement.classList.add('interest-tag');
+        tagElement.innerHTML = `
+          ${interest}
+          <span class="tag-remove" data-interest="${interest}">&times;</span>
+        `;
+        interestTags.appendChild(tagElement);
+        
+        // Add event listener to remove tag
+        tagElement.querySelector('.tag-remove').addEventListener('click', function() {
+          const interestToRemove = this.getAttribute('data-interest');
+          interests = interests.filter(i => i !== interestToRemove);
+          updateHiddenInput();
+          this.parentElement.remove();
+        });
+      }
+
+      // Listen for Enter key press on the input
+      interestInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addTag(this.value);
+          this.value = '';
+        }
+      });
+
+      // Form submission
+      document.getElementById('cosupervisorForm').addEventListener('submit', function(e) {
+        // Typically, we would validate and prepare data here
+        // For demo, we show an alert instead of submitting
+        e.preventDefault();
+        
+        // In a real application, this would submit to the server
+        alert('Co-Supervisor application submitted! This information will now appear on your profile for students to view.');
+        
+        // Redirect back to dashboard
+        window.location.href = 'faculty-dashboard.html';
+      });
+
+      // Add some example tags
+      addTag('Data Analysis');
+      addTag('Computer Vision');
+      addTag('Natural Language Processing');
+    });
+  </script>
+</body>
+</html>

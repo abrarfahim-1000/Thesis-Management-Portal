@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Submit Thesis - Thesis Management System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #e0f0ff, #b3d9ff);
+      color: #003366;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background-color: #d0e7f9;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 10px;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: #003366;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #c0ddf0;
+    }
+
+    .sidebar a.active {
+      background-color: #0055cc;
+      color: white;
+    }
+
+    /* Main section */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Topbar */
+    .topbar {
+      background-color: #c0ddf0;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .topbar h1 {
+      font-size: 20px;
+      color: #002244;
+      margin: 0;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    /* Content area */
+    .content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      overflow-y: auto;
+    }
+
+    .date-display {
+      text-align: right;
+      padding: 10px 20px;
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    /* Submission Form */
+    .submission-container {
+      width: 100%;
+      max-width: 800px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 25px;
+    }
+
+    .submission-header {
+      margin-bottom: 25px;
+    }
+
+    .submission-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #004080;
+      margin-bottom: 10px;
+    }
+
+    .submission-description {
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      color: #004080;
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-file-upload {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .file-upload-area {
+      border: 2px dashed #b3d9ff;
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+      background-color: #f8fbff;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .file-upload-area:hover {
+      background-color: #e6f2ff;
+    }
+
+    .file-upload-icon {
+      font-size: 24px;
+      color: #0055cc;
+      margin-bottom: 10px;
+    }
+
+    .file-upload-text {
+      color: #666;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .file-list {
+      margin-top: 15px;
+    }
+
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #f0f7ff;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .file-item-name {
+      font-size: 14px;
+      color: #004080;
+    }
+
+    .file-item-remove {
+      background: none;
+      border: none;
+      color: #dc3545;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 4px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-primary {
+      background-color: #0055cc;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #0044aa;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+
+    /* Submission history */
+    .submission-history {
+      margin-top: 30px;
+      border-top: 1px solid #e6f2ff;
+      padding-top: 20px;
+    }
+
+    .history-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #004080;
+      margin-bottom: 15px;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .history-table th, 
+    .history-table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #e6f2ff;
+    }
+
+    .history-table th {
+      background-color: #f0f7ff;
+      color: #004080;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <a href="#">Team Search</a>
+    <a href="#">Supervisor</a>
+    <a href="#">Schedule</a>
+    <a href="#" class="active">Submit Thesis</a>
+    <a href="#">Feedback</a>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>THESIS MANAGEMENT SYSTEM</h1>
+      <div class="user-info">
+        <span>abrarfahim-1000</span>
+      </div>
+    </div>
+
+    <div class="date-display">
+      2025-05-05 18:34:46 UTC
+    </div>
+
+    <div class="content">
+      <div class="submission-container">
+        <div class="submission-header">
+          <div class="submission-title">Submit Thesis or Draft</div>
+          <div class="submission-description">
+            Upload your thesis document or draft for review by your supervisor. 
+            Please ensure your document follows the required formatting guidelines.
+          </div>
+        </div>
+
+        <form id="thesis-submission-form">
+          <div class="form-group">
+            <label for="submission-type">Submission Type</label>
+            <select class="form-control" id="submission-type" required>
+              <option value="">Select submission type</option>
+              <option value="proposal">Thesis Proposal</option>
+              <option value="draft">Draft Submission</option>
+              <option value="final">Final Thesis</option>
+              <option value="revision">Revision</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="submission-title">Thesis Title</label>
+            <input type="text" class="form-control" id="submission-title" placeholder="Enter the title of your thesis" required>
+          </div>
+
+          <div class="form-group">
+            <label for="submission-description">Description / Notes</label>
+            <textarea class="form-control" id="submission-description" placeholder="Add any notes or comments for your supervisor"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Upload Thesis Document</label>
+            <div class="form-file-upload">
+              <div class="file-upload-area" id="file-upload-area">
+                <div class="file-upload-icon">📄</div>
+                <div class="file-upload-text">
+                  Drag & drop your file here or <span style="color: #0055cc;">Browse</span>
+                  <div style="font-size: 12px; margin-top: 8px;">Accepted formats: .pdf, .doc, .docx (Max 20MB)</div>
+                </div>
+              </div>
+              <input type="file" id="file-input" class="file-input" accept=".pdf,.doc,.docx">
+            </div>
+          </div>
+
+          <div class="file-list" id="file-list"></div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary">Save Draft</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+
+        <div class="submission-history">
+          <div class="history-title">Submission History</div>
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2025-04-15</td>
+                <td>Thesis Proposal</td>
+                <td>Approved</td>
+                <td><a href="#">View</a></td>
+              </tr>
+              <tr>
+                <td>2025-03-10</td>
+                <td>Draft Submission</td>
+                <td>Feedback Available</td>
+                <td><a href="#">View</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const fileUploadArea = document.getElementById('file-upload-area');
+      const fileInput = document.getElementById('file-input');
+      const fileList = document.getElementById('file-list');
+      
+      // Trigger file input when upload area is clicked
+      fileUploadArea.addEventListener('click', () => {
+        fileInput.click();
+      });
+      
+      // Handle drag and drop
+      fileUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fileUploadArea.style.backgroundColor = '#e6f2ff';
+      });
+      
+      fileUploadArea.addEventListener('dragleave', () => {
+        fileUploadArea.style.backgroundColor = '#f8fbff';
+      });
+      
+      fileUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileUploadArea.style.backgroundColor = '#f8fbff';
+        if (e.dataTransfer.files.length) {
+          handleFiles(e.dataTransfer.files);
+        }
+      });
+      
+      // Handle file selection
+      fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) {
+          handleFiles(fileInput.files);
+        }
+      });
+      
+      function handleFiles(files) {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          
+          // Check file type
+          const fileType = file.name.split('.').pop().toLowerCase();
+          if (!['pdf', 'doc', 'docx'].includes(fileType)) {
+            alert('Invalid file type. Please upload PDF, DOC, or DOCX files.');
+            continue;
+          }
+          
+          // Check file size (max 20MB)
+          if (file.size > 20 * 1024 * 1024) {
+            alert('File is too large. Maximum size is 20MB.');
+            continue;
+          }
+          
+          // Create file item
+          const fileItem = document.createElement('div');
+          fileItem.className = 'file-item';
+          
+          const fileName = document.createElement('div');
+          fileName.className = 'file-item-name';
+          fileName.textContent = file.name;
+          
+          const removeButton = document.createElement('button');
+          removeButton.className = 'file-item-remove';
+          removeButton.innerHTML = '&times;';
+          removeButton.addEventListener('click', () => {
+            fileItem.remove();
+          });
+          
+          fileItem.appendChild(fileName);
+          fileItem.appendChild(removeButton);
+          fileList.appendChild(fileItem);
+        }
+        
+        // Clear file input
+        fileInput.value = '';
+      }
+      
+      // Form submission
+      document.getElementById('thesis-submission-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Validate form
+        const submissionType = document.getElementById('submission-type').value;
+        const submissionTitle = document.getElementById('submission-title').value;
+        
+        if (!submissionType || !submissionTitle) {
+          alert('Please fill in all required fields.');
+          return;
+        }
+        
+        if (fileList.children.length === 0) {
+          alert('Please upload at least one file.');
+          return;
+        }
+        
+        // In a real application, this would submit the form data to the server
+        alert('Thesis submitted successfully!');
+        
+        // Reset form
+        document.getElementById('thesis-submission-form').reset();
+        fileList.innerHTML = '';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Select Role - Thesis System</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom, #d4eaff, #b3d9ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #002244;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    .role-button {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      margin: 15px 0;
+      font-size: 16px;
+      background-color: #0055cc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .role-button:hover {
+      background-color: #003e99;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Select Your Role</h1>
+    <form action="index.html" method="get">
+      <button type="submit" name="role" value="student" class="role-button">I am a Student</button>
+      <button type="submit" name="role" value="faculty" class="role-button">I am a Faculty</button>
+    </form>
+  </div>
+
+</body>
+</html>

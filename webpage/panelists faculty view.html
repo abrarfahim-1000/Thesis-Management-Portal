@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Panel Assignments - Thesis Management System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #e0f0ff, #b3d9ff);
+      color: #003366;
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 200px;
+      background-color: #d0e7f9;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 10px;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: #003366;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #c0ddf0;
+    }
+
+    .sidebar a.active {
+      background-color: #0055cc;
+      color: white;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .topbar {
+      background-color: #c0ddf0;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .topbar h1 {
+      font-size: 20px;
+      color: #002244;
+      margin: 0;
+    }
+
+    .date-display {
+      text-align: right;
+      padding: 10px 20px;
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .panels-table {
+      width: 100%;
+      max-width: 800px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+
+    .panels-header {
+      font-size: 24px;
+      font-weight: bold;
+      color: #004080;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background-color: #e0f0ff;
+      color: #004080;
+      text-align: left;
+      padding: 12px 15px;
+    }
+
+    td {
+      padding: 10px 15px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover {
+      background-color: #f5f9ff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <a href="#">Apply as Supervisor</a>
+    <a href="#">Apply as Co-Supervisor</a>
+    <a href="#">Schedule</a>
+    <a href="#">Notification</a>
+    <a href="#">Plagiarism Checker</a>
+    <a href="#" class="active">Panelists</a>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>THESIS MANAGEMENT SYSTEM</h1>
+      <div class="user-info">abrarfahim-1000</div>
+    </div>
+
+    <div class="date-display">
+      2025-05-05 20:08:05 UTC
+    </div>
+
+    <div class="content">
+      <div class="panels-table">
+        <div class="panels-header">My Panel Assignments</div>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Thesis ID</th>
+              <th>Thesis Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>TH001</td>
+              <td>AI in Healthcare</td>
+            </tr>
+            <tr>
+              <td>TH005</td>
+              <td>Blockchain Applications in Supply Chain</td>
+            </tr>
+            <tr>
+              <td>TH012</td>
+              <td>Natural Language Processing for Academic Research</td>
+            </tr>
+            <tr>
+              <td>TH018</td>
+              <td>Internet of Things Security Framework</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
