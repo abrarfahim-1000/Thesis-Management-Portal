@@ -8,6 +8,7 @@ if (isset($_POST['signup-submit'])) {
     $email = $_POST['email'];
     $department = $_POST['department'];
     $password = $_POST['password'];
+    $faculty_initial = isset($_POST['faculty_initial']) ? $_POST['faculty_initial'] : '';
 
     $check_sql = "SELECT * FROM User WHERE Email = '$email'";
     $check_result = mysqli_query($conn, $check_sql);
@@ -15,36 +16,57 @@ if (isset($_POST['signup-submit'])) {
     if (mysqli_num_rows($check_result) > 0) {
         $signup_message = '<div class="message error">Email already exists.</div>';
     } else {
-        $insert_user_sql = "INSERT INTO User (Name, Email, Department, Password) VALUES ('$name', '$email', '$department', '$password')";
-        if (mysqli_query($conn, $insert_user_sql)) {
-            // Decide where to insert: Student or Faculty
-            if (strpos($email, '@student.com') !== false) {
-                // Insert into Student table
-                $insert_student_sql = "INSERT INTO Student (User_Email, Department) VALUES ('$email', '$department')";
-                if (!mysqli_query($conn, $insert_student_sql)) {
-                    $signup_message = '<div class="message error">User created, but error adding to Student table: ' . mysqli_error($conn) . '</div>';
-                } else {
-                    $signup_message = '<div class="message success">Student account created successfully! <a href="landing.php">Log in here</a>.</div>';
-                }
-            } elseif (strpos($email, '@bracu.com') !== false) {
-                // Insert into Faculty table
-                $faculty_initial = ''; // You may want to ask the user for this in the form or set a placeholder
-                $availability = 1; // Default: available
-                $domain = NULL;
-                $requirements = '';
-
-                $insert_faculty_sql = "INSERT INTO Faculty (Faculty_Initial, User_Email, Domain, Availability, Requirements) VALUES ('$faculty_initial', '$email', NULL, '$availability', '$requirements')";
-                if (!mysqli_query($conn, $insert_faculty_sql)) {
-                    $signup_message = '<div class="message error">User created, but error adding to Faculty table: ' . mysqli_error($conn) . '</div>';
-                } else {
-                    $signup_message = '<div class="message success">Faculty account created successfully! <a href="landing.php">Log in here</a>.</div>';
-                }
+        // Check if it's a faculty email and validate the initial
+        if (strpos($email, '@bracu.com') !== false) {
+            if (empty($faculty_initial)) {
+                $signup_message = '<div class="message error">Faculty initial is required for BRACU faculty.</div>';
             } else {
-                $signup_message = '<div class="message warning">User created, but email domain not recognized (no student/faculty entry made).</div>';
+                // Check if the initial already exists
+                $check_initial_sql = "SELECT * FROM Faculty WHERE Initial = '$faculty_initial'";
+                $check_initial_result = mysqli_query($conn, $check_initial_sql);
+
+                if (mysqli_num_rows($check_initial_result) > 0) {
+                    $signup_message = '<div class="message error">Faculty initial already exists.</div>';
+                } else {
+                    // Proceed with insertion
+                    proceedWithInsertion($conn, $name, $email, $department, $password, $faculty_initial);
+                }
             }
         } else {
-            $signup_message = '<div class="message error">Error creating user: ' . mysqli_error($conn) . '</div>';
+            // Not a faculty email, proceed normally
+            proceedWithInsertion($conn, $name, $email, $department, $password, $faculty_initial);
         }
+    }
+}
+
+// Function to handle the insertion process
+function proceedWithInsertion($conn, $name, $email, $department, $password, $faculty_initial) {
+    global $signup_message;
+    
+    $insert_user_sql = "INSERT INTO User (Name, Email, Department, Password) VALUES ('$name', '$email', '$department', '$password')";
+    if (mysqli_query($conn, $insert_user_sql)) {
+        // Decide where to insert: Student or Faculty
+        if (strpos($email, '@student.com') !== false) {
+            // Insert into Student table
+            $insert_student_sql = "INSERT INTO Student (User_Email, Department) VALUES ('$email', '$department')";
+            if (!mysqli_query($conn, $insert_student_sql)) {
+                $signup_message = '<div class="message error">User created, but error adding to Student table: ' . mysqli_error($conn) . '</div>';
+            } else {
+                $signup_message = '<div class="message success">Student account created successfully! <a href="landing.php">Log in here</a>.</div>';
+            }
+        } elseif (strpos($email, '@bracu.com') !== false) {
+            // Insert into Faculty table
+            $insert_faculty_sql = "INSERT INTO Faculty (Initial, User_Email, Department) VALUES ('$faculty_initial', '$email', '$department')";
+            if (!mysqli_query($conn, $insert_faculty_sql)) {
+                $signup_message = '<div class="message error">User created, but error adding to Faculty table: ' . mysqli_error($conn) . '</div>';
+            } else {
+                $signup_message = '<div class="message success">Faculty account created successfully! <a href="landing.php">Log in here</a>.</div>';
+            }
+        } else {
+            $signup_message = '<div class="message warning">User created, but email domain not recognized (no student/faculty entry made).</div>';
+        }
+    } else {
+        $signup_message = '<div class="message error">Error creating user: ' . mysqli_error($conn) . '</div>';
     }
 }
 ?>
@@ -134,6 +156,22 @@ if (isset($_POST['signup-submit'])) {
       color: #003399;
       text-decoration: underline;
     }
+    #faculty-initial-container {
+      display: none; /* Initially hidden */
+      margin-bottom: 15px;
+      padding-top: 5px;
+      border-top: 1px solid #e0f0ff;
+    }
+    #faculty-initial-container label {
+      color: #004080;
+      font-weight: bold;
+    }
+    .field-note {
+      font-size: 12px;
+      color: #666;
+      margin-top: 2px;
+      margin-bottom: 10px;
+    }
   </style>
   <script>
     // Function to hide notifications after a set time
@@ -151,6 +189,26 @@ if (isset($_POST['signup-submit'])) {
             }, 500);
           });
         }, 3000); // 3 second timeout
+      }
+      
+      // Add email domain check to show/hide faculty initial field
+      const emailInput = document.getElementById('signup-email');
+      const facultyInitialContainer = document.getElementById('faculty-initial-container');
+      
+      // Initial check
+      checkEmailDomain();
+      
+      // Add event listener for email changes
+      emailInput.addEventListener('input', checkEmailDomain);
+      
+      function checkEmailDomain() {
+        if (emailInput.value.indexOf('@bracu.com') !== -1) {
+          facultyInitialContainer.style.display = 'block';
+          document.getElementById('signup-faculty-initial').required = true;
+        } else {
+          facultyInitialContainer.style.display = 'none';
+          document.getElementById('signup-faculty-initial').required = false;
+        }
       }
     });
   </script>
@@ -175,6 +233,11 @@ if (isset($_POST['signup-submit'])) {
 
       <label for="signup-password">Password</label>
       <input type="password" id="signup-password" name="password" required>
+
+      <div id="faculty-initial-container">
+        <label for="signup-faculty-initial">Faculty Initial (for BRACU faculty only)</label>
+        <input type="text" id="signup-faculty-initial" name="faculty_initial">
+      </div>
 
       <button type="submit" name="signup-submit">Create Account</button>
     </form>
