@@ -1,0 +1,1 @@
+robocopy "E:\GitHub\Thesis-Management-Portal" "C:\xampp\htdocs" /MIR
