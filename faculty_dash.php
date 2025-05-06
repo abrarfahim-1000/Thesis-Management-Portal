@@ -1,3 +1,79 @@
+<?php
+// Start session for user authentication
+session_start();
+
+// Database connection
+$servername = "localhost";
+$username = "root"; // Change as needed
+$password = ""; // Change as needed
+$dbname = "thesis_helper";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Get current faculty email from session (assuming it's stored in session)
+// In a real application, you would have proper authentication
+$facultyEmail = isset($_SESSION['user_email']) ? $_SESSION['user_email'] : 'samiha@bracu.com'; // Default for testing
+
+// Get faculty information
+$sql = "SELECT f.Initial, f.Domain, f.Availability, f.Requirements, f.department, 
+        u.Name, u.Email, u.Department as UserDepartment 
+        FROM faculty f 
+        JOIN user u ON f.User_Email = u.Email 
+        WHERE f.User_Email = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $facultyEmail);
+$stmt->execute();
+$result = $stmt->get_result();
+$facultyData = $result->fetch_assoc();
+
+// Get teams under supervision
+$teamsUnderSupervision = [];
+if ($facultyData) {
+    $sql = "SELECT tt.Team_ID, td.Topic, td.ThesisID 
+            FROM thesis_team tt 
+            LEFT JOIN thesis_document td ON tt.Team_ID = td.TeamID 
+            WHERE tt.Initial = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $facultyData['Initial']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        // Count team members
+        $memberCountSql = "SELECT COUNT(*) as memberCount FROM student WHERE Team_ID = ?";
+        $memberStmt = $conn->prepare($memberCountSql);
+        $memberStmt->bind_param("i", $row['Team_ID']);
+        $memberStmt->execute();
+        $memberResult = $memberStmt->get_result();
+        $memberData = $memberResult->fetch_assoc();
+        
+        $row['memberCount'] = $memberData['memberCount'];
+        $teamsUnderSupervision[] = $row;
+        $memberStmt->close();
+    }
+}
+
+// Function to display "Not Available" for null values
+function displayValue($value) {
+    return ($value === null || $value === '') ? 'Not Available' : $value;
+}
+
+// Function to display availability status
+function displayAvailability($value) {
+    if ($value === null) return 'Not Available';
+    return ($value == 1) ? 'Accepting' : 'Not Accepting';
+}
+
+// Close the database connection
+$stmt->close();
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -197,7 +273,6 @@
     <a href="#">Apply as Supervisor</a>
     <a href="#">Apply as Co-Supervisor</a>
     <a href="#">Schedule</a>
-    <a href="#">Notification</a>
     <a href="#">Plagiarism Checker</a>
     <a href="#">Panelists</a>
   </div>
@@ -212,13 +287,13 @@
     </div>
 
     <div class="date-display">
-      2025-05-05 19:59:11 UTC
+      <?php echo date('Y-m-d H:i:s'); ?> UTC
     </div>
 
     <div class="content">
       <div class="header-title">
         <h2>Faculty Dashboard</h2>
-        <p>Welcome, abrarfahim-1000</p>
+        <p>Welcome, <?php echo displayValue($facultyData['Name']); ?></p>
       </div>
 
       <div class="card">
@@ -226,19 +301,31 @@
         <div class="profile-info">
           <div class="profile-item">
             <div class="profile-label">Name:</div>
-            <div>Dr. James Wilson</div>
+            <div><?php echo displayValue($facultyData['Name']); ?></div>
           </div>
           <div class="profile-item">
             <div class="profile-label">Email:</div>
-            <div>james.wilson@university.edu</div>
+            <div><?php echo displayValue($facultyData['Email']); ?></div>
           </div>
           <div class="profile-item">
             <div class="profile-label">Department:</div>
-            <div>Computer Science</div>
+            <div><?php echo displayValue($facultyData['department'] ? $facultyData['department'] : $facultyData['UserDepartment']); ?></div>
           </div>
           <div class="profile-item">
             <div class="profile-label">Status:</div>
-            <div>Active</div>
+            <div><?php echo displayAvailability($facultyData['Availability']); ?></div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-label">Initial:</div>
+            <div><?php echo displayValue($facultyData['Initial']); ?></div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-label">Domain:</div>
+            <div><?php echo displayValue($facultyData['Domain']); ?></div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-label">Requirements:</div>
+            <div><?php echo displayValue($facultyData['Requirements']); ?></div>
           </div>
         </div>
       </div>
@@ -246,42 +333,32 @@
       <div class="dashboard-grid">
         <div class="dashboard-item">
           <h3>Teams Under Supervision</h3>
-          <table class="teams-table">
-            <thead>
-              <tr>
-                <th>Team ID</th>
-                <th>Thesis Topic</th>
-                <th>Members</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><a href="#" class="team-id" onclick="alert('This would redirect to Team T001 information page')">T001</a></td>
-                <td>AI in Healthcare</td>
-                <td>3</td>
-                <td>
-                  <a href="#" class="btn" onclick="alert('Send feedback to team T001')">Send Feedback</a>
-                </td>
-              </tr>
-              <tr>
-                <td><a href="#" class="team-id" onclick="alert('This would redirect to Team T002 information page')">T002</a></td>
-                <td>Machine Learning for Climate Prediction</td>
-                <td>4</td>
-                <td>
-                  <a href="#" class="btn" onclick="alert('Send feedback to team T002')">Send Feedback</a>
-                </td>
-              </tr>
-              <tr>
-                <td><a href="#" class="team-id" onclick="alert('This would redirect to Team T003 information page')">T003</a></td>
-                <td>Blockchain Security Analysis</td>
-                <td>2</td>
-                <td>
-                  <a href="#" class="btn" onclick="alert('Send feedback to team T003')">Send Feedback</a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <?php if (!empty($teamsUnderSupervision)): ?>
+            <table class="teams-table">
+              <thead>
+                <tr>
+                  <th>Team ID</th>
+                  <th>Thesis Topic</th>
+                  <th>Members</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($teamsUnderSupervision as $team): ?>
+                  <tr>
+                    <td><a href="#" class="team-id"><?php echo $team['Team_ID']; ?></a></td>
+                    <td><?php echo displayValue($team['Topic']); ?></td>
+                    <td><?php echo $team['memberCount']; ?></td>
+                    <td>
+                      <a href="feedback.php?team_id=<?php echo $team['Team_ID']; ?>&thesis_id=<?php echo $team['ThesisID']; ?>" class="btn">Send Feedback</a>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          <?php else: ?>
+            <p>You do not have any teams under your supervision.</p>
+          <?php endif; ?>
         </div>
       </div>
     </div>

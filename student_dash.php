@@ -1,3 +1,78 @@
+<?php
+// Start session for user authentication
+session_start();
+
+// Database connection
+$servername = "localhost";
+$username = "root"; // Change as needed
+$password = ""; // Change as needed
+$dbname = "thesis_helper";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Get current user email from session (assuming it's stored in session)
+// In a real application, you would have proper authentication
+$userEmail = isset($_SESSION['user_email']) ? $_SESSION['user_email'] : 'abrar1@student.com'; // Default for testing
+
+// Get student information
+$sql = "SELECT s.Student_ID, u.Name, u.Email, s.CGPA, s.Team_ID, s.department 
+        FROM student s 
+        JOIN user u ON s.User_Email = u.Email 
+        WHERE s.User_Email = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $userEmail);
+$stmt->execute();
+$result = $stmt->get_result();
+$studentData = $result->fetch_assoc();
+
+// Get thesis information if student has a team
+$thesisInfo = null;
+if ($studentData && $studentData['Team_ID']) {
+    $sql = "SELECT td.Topic, td.Supervisor, f.Initial, u.Name as SupervisorName 
+            FROM thesis_document td 
+            JOIN thesis_team tt ON td.TeamID = tt.Team_ID 
+            LEFT JOIN faculty f ON td.Supervisor = f.Initial 
+            LEFT JOIN user u ON f.User_Email = u.Email 
+            WHERE td.TeamID = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $studentData['Team_ID']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $thesisInfo = $result->fetch_assoc();
+}
+
+// Get team members if student has a team
+$teamMembers = [];
+if ($studentData && $studentData['Team_ID']) {
+    $sql = "SELECT s.Student_ID, u.Name, u.Email 
+            FROM student s 
+            JOIN user u ON s.User_Email = u.Email 
+            WHERE s.Team_ID = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $studentData['Team_ID']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $teamMembers[] = $row;
+    }
+}
+
+// Function to display "Not Available" for null values
+function displayValue($value) {
+    return ($value === null || $value === '') ? 'Not Available' : $value;
+}
+
+// Close the database connection
+$stmt->close();
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -190,7 +265,6 @@
     <a href="#">Team Search</a>
     <a href="#">Supervisor</a>
     <a href="#">Schedule</a>
-    <a href="#">Notification</a>
     <a href="#">Report Progress</a>
     <a href="#">Plagiarism Checker</a>
     <a href="#">Panelists</a>
@@ -208,13 +282,13 @@
     </div>
 
     <div class="date-display">
-      2025-05-05 19:56:07 UTC
+      <?php echo date('Y-m-d H:i:s'); ?> UTC
     </div>
 
     <div class="content">
       <div class="header-title">
         <h2>Student Dashboard</h2>
-        <p>Welcome, abrarfahim-1000</p>
+        <p>Welcome, <?php echo displayValue($studentData['Name']); ?></p>
       </div>
 
       <div class="card">
@@ -222,19 +296,27 @@
         <div class="profile-info">
           <div class="profile-item">
             <div class="profile-label">Name:</div>
-            <div>John Doe</div>
+            <div><?php echo displayValue($studentData['Name']); ?></div>
           </div>
           <div class="profile-item">
             <div class="profile-label">Email:</div>
-            <div>john.doe@example.com</div>
+            <div><?php echo displayValue($studentData['Email']); ?></div>
           </div>
           <div class="profile-item">
-            <div class="profile-label">Enrollment Year:</div>
-            <div>2023</div>
+            <div class="profile-label">Student ID:</div>
+            <div><?php echo displayValue($studentData['Student_ID']); ?></div>
           </div>
           <div class="profile-item">
-            <div class="profile-label">Status:</div>
-            <div>Active</div>
+            <div class="profile-label">Department:</div>
+            <div><?php echo displayValue($studentData['department']); ?></div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-label">CGPA:</div>
+            <div><?php echo displayValue($studentData['CGPA']); ?></div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-label">Team ID:</div>
+            <div><?php echo displayValue($studentData['Team_ID']); ?></div>
           </div>
         </div>
       </div>
@@ -242,39 +324,39 @@
       <div class="dashboard-grid">
         <div class="dashboard-item">
           <h3>My Thesis</h3>
-          <p><strong>Title:</strong> Investigating AI Applications</p>
-          <p><strong>Supervisor:</strong> Dr. Smith</p>
+          <?php if ($thesisInfo): ?>
+            <p><strong>Title:</strong> <?php echo displayValue($thesisInfo['Topic']); ?></p>
+            <p><strong>Supervisor:</strong> <?php echo displayValue($thesisInfo['SupervisorName']) . ' (' . displayValue($thesisInfo['Initial']) . ')'; ?></p>
+          <?php else: ?>
+            <p>No thesis information available. You may need to join a team first.</p>
+          <?php endif; ?>
           <a href="#" class="btn">View Details</a>
         </div>
 
         <div class="dashboard-item">
           <h3>My Team</h3>
-          <table class="team-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Student ID</th>
-                <th>Email</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>John Doe</td>
-                <td>ST12345</td>
-                <td>john.doe@example.com</td>
-              </tr>
-              <tr>
-                <td>Jane Smith</td>
-                <td>ST12346</td>
-                <td>jane.smith@example.com</td>
-              </tr>
-              <tr>
-                <td>Alex Johnson</td>
-                <td>ST12347</td>
-                <td>alex.johnson@example.com</td>
-              </tr>
-            </tbody>
-          </table>
+          <?php if (!empty($teamMembers)): ?>
+            <table class="team-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Student ID</th>
+                  <th>Email</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($teamMembers as $member): ?>
+                  <tr>
+                    <td><?php echo displayValue($member['Name']); ?></td>
+                    <td><?php echo displayValue($member['Student_ID']); ?></td>
+                    <td><?php echo displayValue($member['Email']); ?></td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          <?php else: ?>
+            <p>You are not currently part of a team.</p>
+          <?php endif; ?>
         </div>
       </div>
     </div>
