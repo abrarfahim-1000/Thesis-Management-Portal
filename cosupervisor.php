@@ -1,0 +1,290 @@
+<?php
+// Start session for user authentication
+session_start();
+
+// Database connection
+$servername = "localhost";
+$username = "root"; // Change as needed
+$password = ""; // Change as needed
+$dbname = "thesis_helper";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Get co-supervisors from the database
+$sql = "SELECT f.Initial, f.Domain, f.Availability, f.Requirements, f.department, 
+        u.Name, u.Email, u.Department as UserDepartment 
+        FROM co_supervisor cs 
+        JOIN faculty f ON cs.E_Initial = f.Initial 
+        JOIN user u ON f.User_Email = u.Email";
+$result = $conn->query($sql);
+
+// Function to display "Not Available" for null values
+function displayValue($value) {
+    return ($value === null || $value === '') ? 'Not Available' : $value;
+}
+
+// Function to display availability status
+function displayAvailability($value) {
+    if ($value === null) return 'Not Available';
+    return ($value == 1) ? '<span class="available">Accepting</span>' : '<span class="full">Not Accepting</span>';
+}
+
+// Function to get initials from name
+function getInitials($name) {
+    $words = explode(' ', $name);
+    $initials = '';
+    foreach ($words as $word) {
+        $initials .= strtoupper(substr($word, 0, 1));
+    }
+    return $initials;
+}
+
+// Function to format domain tags
+function formatDomainTags($domain) {
+    if ($domain === null || $domain === '') return 'Not Available';
+    
+    $domains = explode(',', $domain);
+    $html = '';
+    foreach ($domains as $d) {
+        $d = trim($d);
+        if (!empty($d)) {
+            $html .= '<span class="domain-tag">' . htmlspecialchars($d) . '</span> ';
+        }
+    }
+    return $html;
+}
+
+// Close the database connection after we're done
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Co-Supervisors - Thesis Management System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f8fc;
+      color: #003366;
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 200px;
+      background-color: #d0e7f9;
+      padding: 20px 10px;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar a {
+      display: block;
+      color: #003366;
+      text-decoration: none;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #c0ddf0;
+    }
+
+    .sidebar a.active {
+      background-color: #0055cc;
+      color: white;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background-color: #c0ddf0;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .content {
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .supervisor-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .supervisor-table th,
+    .supervisor-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #e0f0ff;
+    }
+
+    .supervisor-table th {
+      background-color: #e0f0ff;
+      color: #004080;
+    }
+
+    .initial-circle {
+      width: 40px;
+      height: 40px;
+      background-color: #0055cc;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .available {
+      color: green;
+      font-weight: bold;
+    }
+
+    .full {
+      color: red;
+      font-weight: bold;
+    }
+
+    .domain-tag {
+      display: inline-block;
+      background-color: #e0f0ff;
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 0.9em;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      border: 1px solid #b3d9ff;
+    }
+
+    .date-display {
+      text-align: right;
+      padding: 10px 20px;
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+
+    .request-btn {
+      display: inline-block;
+      padding: 5px 10px;
+      background-color: #0055cc;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 0.9em;
+    }
+
+    .request-btn:hover {
+      background-color: #004080;
+    }
+
+    .disabled-btn {
+      display: inline-block;
+      padding: 5px 10px;
+      background-color: #cccccc;
+      color: #666666;
+      border-radius: 5px;
+      font-size: 0.9em;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <a href="#">Team Search</a>
+    <a href="supervisor.php">Supervisor</a>
+    <a href="#" class="active">Co-Supervisor</a>
+    <a href="#">Schedule</a>
+    <a href="#">Submit Thesis</a>
+    <a href="#">Feedback</a>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>THESIS MANAGEMENT SYSTEM</h1>
+    </div>
+
+    <div class="date-display">
+      <?php echo date('Y-m-d H:i:s'); ?> UTC
+    </div>
+
+    <div class="content">
+      <h2>Co-Supervisor List</h2>
+      <table class="supervisor-table">
+        <thead>
+          <tr>
+            <th>Initial</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Availability</th>
+            <th>Requirement</th>
+            <th>Domain</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          if ($result->num_rows > 0) {
+              // Output data of each row
+              while($row = $result->fetch_assoc()) {
+                  echo "<tr>";
+                  echo "<td><div class='initial-circle'>" . $row["Initial"] . "</div></td>";
+                  echo "<td>" . displayValue($row["Name"]) . "</td>";
+                  echo "<td>" . displayValue($row["department"] ? $row["department"] : $row["UserDepartment"]) . "</td>";
+                  echo "<td>" . displayAvailability($row["Availability"]) . "</td>";
+                  echo "<td>" . displayValue($row["Requirements"]) . "</td>";
+                  echo "<td>" . formatDomainTags($row["Domain"]) . "</td>";
+                  echo "<td>";
+                  if ($row["Availability"] == 1) {
+                      echo '<a href="request_supervisor.php?initial=' . $row['Initial'] . '" class="request-btn">Request</a>';
+                  } else {
+                      echo '<span class="disabled-btn">Request</span>';
+                  }
+                  echo "</td>";
+                  echo "</tr>";
+              }
+          } else {
+              echo "<tr><td colspan='7' class='no-data'>No co-supervisors found</td></tr>";
+          }
+          $conn->close();
+          ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</body>
+</html>
