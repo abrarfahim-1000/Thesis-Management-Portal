@@ -20,6 +20,19 @@ if ($conn->connect_error) {
 // In a real application, you would have proper authentication
 $facultyEmail = isset($_SESSION['user_email']) ? $_SESSION['user_email'] : 'samiha@bracu.com'; // Default for testing
 
+// Get faculty information to use throughout the script
+$sql = "SELECT f.Initial, f.Domain, f.Availability, f.Requirements, 
+        u.Name, u.Email 
+        FROM faculty f 
+        JOIN user u ON f.User_Email = u.Email 
+        WHERE f.User_Email = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $facultyEmail);
+$stmt->execute();
+$result = $stmt->get_result();
+$facultyData = $result->fetch_assoc();
+$stmt->close();
+
 // Check if form is submitted
 $successMessage = "";
 $errorMessage = "";
@@ -58,35 +71,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             $checkStmt->close();
         } else {
-            // Remove faculty initial from supervisor table if present
-            $deleteSql = "DELETE FROM supervisor WHERE E_initial = ?";
-            $deleteStmt = $conn->prepare($deleteSql);
-            $deleteStmt->bind_param("s", $facultyData['Initial']);
-            $deleteStmt->execute();
-            $deleteStmt->close();
-            $successMessage = "Supervisor status updated.";
+            // Check if there are any thesis teams under this supervisor
+            $checkTeamsSql = "SELECT COUNT(*) as count FROM thesis_team WHERE Initial = ?";
+            $checkTeamsStmt = $conn->prepare($checkTeamsSql);
+            $checkTeamsStmt->bind_param("s", $facultyData['Initial']);
+            $checkTeamsStmt->execute();
+            $checkTeamsResult = $checkTeamsStmt->get_result();
+            $checkTeamsData = $checkTeamsResult->fetch_assoc();
+            $checkTeamsStmt->close();
+
+            if ($checkTeamsData['count'] > 0) {
+                $errorMessage = "You have theses under your supervision. You cannot recuse yourself.";
+            } else {
+                // Remove faculty initial from supervisor table if present
+                try {
+                    $deleteSql = "DELETE FROM supervisor WHERE E_initial = ?";
+                    $deleteStmt = $conn->prepare($deleteSql);
+                    $deleteStmt->bind_param("s", $facultyData['Initial']);
+                    $deleteStmt->execute();
+                    $deleteStmt->close();
+                    $successMessage = "Supervisor status updated.";
+                } catch (Exception $e) {
+                    $errorMessage = "You have theses under your supervision. You cannot recuse yourself.";
+                }
+            }
         }
     } else {
         $errorMessage = "Error: " . $stmt->error;
     }
 
     $stmt->close();
+    
+    // Refresh faculty data after update
+    $sql = "SELECT f.Initial, f.Domain, f.Availability, f.Requirements, 
+            u.Name, u.Email 
+            FROM faculty f 
+            JOIN user u ON f.User_Email = u.Email 
+            WHERE f.User_Email = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $facultyEmail);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $facultyData = $result->fetch_assoc();
+    $stmt->close();
 }
 
-// Get faculty information to pre-fill the form
-$sql = "SELECT f.Initial, f.Domain, f.Availability, f.Requirements, 
-        u.Name, u.Email 
-        FROM faculty f 
-        JOIN user u ON f.User_Email = u.Email 
-        WHERE f.User_Email = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $facultyEmail);
-$stmt->execute();
-$result = $stmt->get_result();
-$facultyData = $result->fetch_assoc();
-
 // Close the database connection
-$stmt->close();
 $conn->close();
 ?>
 
@@ -285,6 +315,7 @@ $conn->close();
       margin-bottom: 20px;
       border-radius: 4px;
       width: 100%;
+      transition: opacity 0.5s ease-out; /* Add smooth fade-out transition */
     }
 
     .alert-success {
@@ -329,13 +360,13 @@ $conn->close();
       </div>
 
       <?php if ($successMessage): ?>
-        <div class="alert alert-success">
+        <div class="alert alert-success" id="success-alert">
           <?php echo $successMessage; ?>
         </div>
       <?php endif; ?>
 
       <?php if ($errorMessage): ?>
-        <div class="alert alert-danger">
+        <div class="alert alert-danger" id="error-alert">
           <?php echo $errorMessage; ?>
         </div>
       <?php endif; ?>
@@ -387,5 +418,34 @@ $conn->close();
       </div>
     </div>
   </div>
+
+  <script>
+    // JavaScript to handle automatic hiding of alerts after 3 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+      const successAlert = document.getElementById('success-alert');
+      const errorAlert = document.getElementById('error-alert');
+      
+      if (successAlert) {
+        setTimeout(function() {
+          successAlert.style.opacity = '0';
+          setTimeout(function() {
+            successAlert.style.display = 'none';
+          }, 500); // Wait for fade-out animation to complete
+        }, 3000); // 3 seconds delay
+      }
+      
+      if (errorAlert) {
+        setTimeout(function() {
+          errorAlert.style.opacity = '0';
+          setTimeout(function() {
+            errorAlert.style.display = 'none';
+          }, 500); // Wait for fade-out animation to complete
+        }, 3000); // 3 seconds delay
+      }
+    });
+
+    // Form handling and other existing scripts
+    // ...existing code...
+  </script>
 </body>
 </html>
