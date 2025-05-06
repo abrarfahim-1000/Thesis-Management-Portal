@@ -271,7 +271,7 @@ $conn->close();
 
   <div class="sidebar">
     <a href="applyAsSupervisor.php">Apply as Supervisor</a>
-    <a href="#">Apply as Co-Supervisor</a>
+    <a href="applyAsCosup.php">Apply as Co-Supervisor</a>
     <a href="#">Schedule</a>
     <a href="#">Plagiarism Checker</a>
     <a href="#">Panelists</a>

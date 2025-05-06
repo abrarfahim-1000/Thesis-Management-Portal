@@ -21,7 +21,7 @@ if ($conn->connect_error) {
 $facultyEmail = isset($_SESSION['user_email']) ? $_SESSION['user_email'] : 'samiha@bracu.com'; // Default for testing
 
 // Get faculty information to use throughout the script
-$sql = "SELECT f.Initial, f.Domain, f.Availability, f.Requirements, 
+$sql = "SELECT f.Initial, f.Domain, f.Requirements, 
         u.Name, u.Email 
         FROM faculty f 
         JOIN user u ON f.User_Email = u.Email 
@@ -33,6 +33,19 @@ $result = $stmt->get_result();
 $facultyData = $result->fetch_assoc();
 $stmt->close();
 
+// Check if faculty is already a co-supervisor
+$isCoSupervisor = false;
+$checkSql = "SELECT COUNT(*) as count FROM co_supervisor WHERE E_initial = ?";
+$checkStmt = $conn->prepare($checkSql);
+$checkStmt->bind_param("s", $facultyData['Initial']);
+$checkStmt->execute();
+$checkResult = $checkStmt->get_result();
+$checkData = $checkResult->fetch_assoc();
+if ($checkData['count'] > 0) {
+    $isCoSupervisor = true;
+}
+$checkStmt->close();
+
 // Check if form is submitted
 $successMessage = "";
 $errorMessage = "";
@@ -43,42 +56,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Get form data
     $researchInterests = $_POST['research_interests'];
     $requirements = $_POST['requirements'];
-    $availability = isset($_POST['availability']) && $_POST['availability'] == 'yes' ? 1 : 0;
+    $availability = isset($_POST['availability']) && $_POST['availability'] == 'yes' ? true : false;
 
-    // Update faculty information
-    $sql = "UPDATE faculty SET Domain = ?, Requirements = ?, Availability = ? WHERE User_Email = ?";
+    // Update faculty information - only Domain and Requirements, NOT Availability
+    $sql = "UPDATE faculty SET Domain = ?, Requirements = ? WHERE User_Email = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssis", $researchInterests, $requirements, $availability, $facultyEmail);
+    $stmt->bind_param("sss", $researchInterests, $requirements, $facultyEmail);
 
     if ($stmt->execute()) {
-        if ($availability == 1) {
-            // Check if faculty initial is already in supervisor table
-            $checkSql = "SELECT COUNT(*) as count FROM supervisor WHERE E_initial = ?";
-            $checkStmt = $conn->prepare($checkSql);
-            $checkStmt->bind_param("s", $facultyData['Initial']);
-            $checkStmt->execute();
-            $checkResult = $checkStmt->get_result();
-            $checkData = $checkResult->fetch_assoc();
-
-            if ($checkData['count'] == 0) {
-                // Add faculty initial to supervisor table
-                $insertSql = "INSERT INTO supervisor (E_initial) VALUES (?)";
+        if ($availability) {
+            // Faculty wants to be a co-supervisor
+            if (!$isCoSupervisor) {
+                // Not a co-supervisor yet, add to table
+                $insertSql = "INSERT INTO co_supervisor (E_initial) VALUES (?)";
                 $insertStmt = $conn->prepare($insertSql);
                 $insertStmt->bind_param("s", $facultyData['Initial']);
-                $insertStmt->execute();
-                $insertStmt->close();
-                $successMessage = "Supervisor status updated.";
                 
-                // Reset form data
-                $researchInterests = "";
-                $requirements = "";
+                if ($insertStmt->execute()) {
+                    $successMessage = "You are now registered as a co-supervisor.";
+                    $isCoSupervisor = true;
+                    
+                    // Reset form data after successful submission
+                    $researchInterests = "";
+                    $requirements = "";
+                } else {
+                    $errorMessage = "Error adding you as a co-supervisor: " . $insertStmt->error;
+                }
+                $insertStmt->close();
             } else {
-                $successMessage = "You are already a supervisor.";
+                $successMessage = "You are already a co-supervisor.";
             }
-            $checkStmt->close();
         } else {
-            // Check if there are any thesis teams under this supervisor
-            $checkTeamsSql = "SELECT COUNT(*) as count FROM thesis_team WHERE Initial = ?";
+            // Faculty does NOT want to be a co-supervisor
+            // Check if there are any thesis teams under this co-supervisor
+            $checkTeamsSql = "SELECT COUNT(*) as count FROM thesis_team WHERE Cinitial = ?";
             $checkTeamsStmt = $conn->prepare($checkTeamsSql);
             $checkTeamsStmt->bind_param("s", $facultyData['Initial']);
             $checkTeamsStmt->execute();
@@ -87,33 +98,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $checkTeamsStmt->close();
 
             if ($checkTeamsData['count'] > 0) {
-                $errorMessage = "You have theses under your supervision. You cannot recuse yourself.";
+                $errorMessage = "You have theses under your co-supervision. You cannot recuse yourself.";
             } else {
-                // Remove faculty initial from supervisor table if present
-                try {
-                    $deleteSql = "DELETE FROM supervisor WHERE E_initial = ?";
+                if ($isCoSupervisor) {
+                    // Remove faculty initial from co_supervisor table
+                    $deleteSql = "DELETE FROM co_supervisor WHERE E_initial = ?";
                     $deleteStmt = $conn->prepare($deleteSql);
                     $deleteStmt->bind_param("s", $facultyData['Initial']);
-                    $deleteStmt->execute();
-                    $deleteStmt->close();
-                    $successMessage = "Supervisor status updated.";
                     
-                    // Reset form data
-                    $researchInterests = "";
-                    $requirements = "";
-                } catch (Exception $e) {
-                    $errorMessage = "You have theses under your supervision. You cannot recuse yourself.";
+                    if ($deleteStmt->execute()) {
+                        $successMessage = "You have been removed from the co-supervisor list.";
+                        $isCoSupervisor = false;
+                        
+                        // Reset form data after successful submission
+                        $researchInterests = "";
+                        $requirements = "";
+                    } else {
+                        $errorMessage = "Error removing you from co-supervisor list: " . $deleteStmt->error;
+                    }
+                    $deleteStmt->close();
+                } else {
+                    $successMessage = "You were not a co-supervisor.";
                 }
             }
         }
     } else {
-        $errorMessage = "Error: " . $stmt->error;
+        $errorMessage = "Error updating your information: " . $stmt->error;
     }
 
     $stmt->close();
     
     // Refresh faculty data after update
-    $sql = "SELECT f.Initial, f.Domain, f.Availability, f.Requirements, 
+    $sql = "SELECT f.Initial, f.Domain, f.Requirements, 
             u.Name, u.Email 
             FROM faculty f 
             JOIN user u ON f.User_Email = u.Email 
@@ -124,7 +140,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = $stmt->get_result();
     $facultyData = $result->fetch_assoc();
     $stmt->close();
-    
+
     // Use PHP header to redirect and refresh the page to clear form fields
     if ($successMessage != "") {
         // Store success message in session to display after redirect
@@ -158,7 +174,7 @@ $conn->close();
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Apply as Supervisor - Thesis Management System</title>
+  <title>Apply as Co-Supervisor - Thesis Management System</title>
   <style>
     body {
       margin: 0;
@@ -368,8 +384,8 @@ $conn->close();
 <body>
 
   <div class="sidebar">
-    <a href="#" class="active">Apply as Supervisor</a>
-    <a href="applyAsCosup.php">Apply as Co-Supervisor</a>
+    <a href="applyAsSupervisor.php">Apply as Supervisor</a>
+    <a href="#" class="active">Apply as Co-Supervisor</a>
     <a href="#">Schedule</a>
     <a href="faculty_dash.php">Dashboard</a>
   </div>
@@ -389,7 +405,7 @@ $conn->close();
 
     <div class="content">
       <div class="header-title">
-        <h2>Apply as Thesis Supervisor</h2>
+        <h2>Apply as Thesis Co-Supervisor</h2>
         <p>Welcome, <?php echo isset($facultyData['Name']) ? $facultyData['Name'] : 'Faculty Member'; ?></p>
       </div>
 
@@ -406,12 +422,12 @@ $conn->close();
       <?php endif; ?>
 
       <div class="card">
-        <form id="supervisorForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+        <form id="cosupervisorForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
           <div class="form-group">
             <label for="research_interests">Research Interests</label>
             <input type="text" id="research_interests" name="research_interests" class="form-control" 
                    placeholder="Enter your research interests (e.g., Machine Learning, AI, Data Science)" 
-                   value="<?php echo isset($facultyData['Domain']) && !$formSubmitted ? $facultyData['Domain'] : ''; ?>">
+                   value="<?php echo isset($facultyData['Domain']) ? $facultyData['Domain'] : ''; ?>">
             <small>This will be stored in the Domain field of the faculty table.</small>
           </div>
 
@@ -419,35 +435,35 @@ $conn->close();
             <label for="requirements">Requirements for Students (Minimum CGPA)</label>
             <input type="number" id="requirements" name="requirements" class="form-control" 
                    step="0.01" min="0" max="4.00" placeholder="Enter minimum CGPA requirement (e.g., 3.50)"
-                   value="<?php echo isset($facultyData['Requirements']) && !$formSubmitted ? $facultyData['Requirements'] : ''; ?>">
+                   value="<?php echo isset($facultyData['Requirements']) ? $facultyData['Requirements'] : ''; ?>">
             <small>Enter the minimum CGPA required for students to apply.</small>
           </div>
 
           <div class="form-group">
-            <label>Availability</label>
+            <label>Co-Supervisor Status</label>
             <div class="radio-group">
               <div class="radio-option">
                 <input type="radio" id="availability_yes" name="availability" value="yes" 
-                       <?php echo (isset($facultyData['Availability']) && $facultyData['Availability'] == 1) ? 'checked' : ''; ?>>
-                <label for="availability_yes">Yes, I am available to supervise thesis</label>
+                       <?php echo ($isCoSupervisor) ? 'checked' : ''; ?>>
+                <label for="availability_yes">Yes, I want to be a co-supervisor</label>
               </div>
               <div class="radio-option">
                 <input type="radio" id="availability_no" name="availability" value="no"
-                       <?php echo (isset($facultyData['Availability']) && $facultyData['Availability'] == 0) ? 'checked' : ''; ?>>
-                <label for="availability_no">No, I am not available at this time</label>
+                       <?php echo (!$isCoSupervisor) ? 'checked' : ''; ?>>
+                <label for="availability_no">No, I do not want to be a co-supervisor</label>
               </div>
             </div>
-            <small>This will set your availability status for students to see.</small>
+            <small>This will determine whether you are listed as an available co-supervisor.</small>
           </div>
 
           <div class="page-info">
-            <p>After submission, this information will be displayed on the Supervisor page visible to students. Students can view your profile and research interests when selecting a thesis supervisor.</p>
+            <p>After submission, your research interests and CGPA requirements will be displayed to students. If you choose to be a co-supervisor, students will be able to select you when forming thesis teams.</p>
           </div>
 
           <div class="form-actions">
             <a href="faculty-dashboard.php" class="btn btn-secondary">Cancel</a>
-            <button type="submit" class="btn">Submit Application</button>
-            <button type="reset" class="btn btn-secondary">Reset Form</button>
+            <button type="submit" class="btn">Submit</button>
+            <button type="reset" class="btn btn-secondary">Reset</button>
           </div>
         </form>
       </div>
