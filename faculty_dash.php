@@ -270,7 +270,7 @@ $conn->close();
 <body>
 
   <div class="sidebar">
-    <a href="#">Apply as Supervisor</a>
+    <a href="applyAsSupervisor.php">Apply as Supervisor</a>
     <a href="#">Apply as Co-Supervisor</a>
     <a href="#">Schedule</a>
     <a href="#">Plagiarism Checker</a>
