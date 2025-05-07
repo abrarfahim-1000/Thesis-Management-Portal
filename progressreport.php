@@ -302,19 +302,17 @@ $conn->close();
     <a href="student_dash.php">Dashboard</a>
     <a href="teamsearch.php">Team Search</a>
     <a href="supervisor.php">Supervisor</a>
+    <a href="cosupervisor.php">Co-Supervisor</a>
+    <a href="get_schedule2.php">Schedule</a>
     <a href="progressreport.php" class="active">Report Progress</a>
-    <a href="#">Submit Thesis</a>
-    <a href="#">Feedback</a>
+    <a href="submit_thesis.php">Submit Thesis</a>
+    <a href="student_feedback.php">Feedback</a>
+    <a href="thesisDB.php">Thesis Database</a>
   </div>
 
   <div class="main">
     <div class="topbar">
       <h1>THESIS MANAGEMENT SYSTEM</h1>
-      <div class="user-info"><?php echo $userName; ?></div>
-    </div>
-
-    <div class="date-display">
-      <?php echo date('Y-m-d H:i:s T'); ?>
     </div>
 
     <div class="content">

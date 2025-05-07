@@ -160,17 +160,20 @@
 <body>
 
   <div class="sidebar">
-    <a href="#">Team Search</a>
-    <a href="#">Supervisor</a>
+    <a href="student_dash.php">Dashboard</a>
+    <a href="teamsearch.php">Team Search</a>
+    <a href="supervisor.php">Supervisor</a>
+    <a href="cosupervisor.php">Co-Supervisor</a>
     <a href="get_schedule2.php" class="active">Schedule</a>
-    <a href="#">Submit Thesis</a>
-    <a href="#">Feedback</a>
+    <a href="progressreport.php">Report Progress</a>
+    <a href="submit_thesis.php">Submit Thesis</a>
+    <a href="student_feedback.php">Feedback</a>
+    <a href="thesisDB.php">Thesis Database</a>
   </div>
 
   <div class="main">
     <div class="topbar">
       <h1>THESIS MANAGEMENT SYSTEM</h1>
-      <div class="user-info">shahriar121-11</div>
     </div>
 
     <div class="content">

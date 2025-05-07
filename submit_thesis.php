@@ -170,13 +170,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_thesis'])) {
                     
                     try {
                         // Insert into database - using proper parameter binding for binary data
-                        $sql = "INSERT INTO thesis_document (TeamID, Topic, Semester, Supervisor, Co_Supervisor, content, content_name, content_type, content_size) 
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        $sql = "INSERT INTO thesis_document (TeamID, Topic, Semester, Supervisor, Co_Supervisor, content, content_name, content_type, content_size, category_status) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                         $stmt = $conn->prepare($sql);
-                        
+
                         // Bind parameters - note that for binary data, we still use 's' (string)
                         // There's no specific 'b' type in mysqli bind_param
-                        $stmt->bind_param("isssssssi", 
+                        $stmt->bind_param("isssssssss", 
                             $teamID, 
                             $thesisTitle, 
                             $semester, 
@@ -185,7 +185,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_thesis'])) {
                             $fileContent, 
                             $fileName, 
                             $fileType, 
-                            $fileSize
+                            $fileSize,
+                            $submissionType
                         );
                         
                         if ($stmt->execute()) {
@@ -508,16 +509,15 @@ $conn->close();
 <body>
 
   <div class="sidebar">
-    <a href="student_dash.php">Dashboard</a>
-    <a href="#">Team Search</a>
+  <a href="student_dash.php">Dashboard</a>
+    <a href="teamsearch.php">Team Search</a>
     <a href="supervisor.php">Supervisor</a>
     <a href="cosupervisor.php">Co-Supervisor</a>
     <a href="get_schedule2.php">Schedule</a>
-    <a href="#">Report Progress</a>
-    <a href="#">Plagiarism Checker</a>
-    <a href="#">Panelists</a>
+    <a href="progressreport.php">Report Progress</a>
     <a href="submit_thesis.php" class="active">Submit Thesis</a>
     <a href="student_feedback.php">Feedback</a>
+    <a href="thesisDB.php">Thesis Database</a>
   </div>
 
   <div class="main">

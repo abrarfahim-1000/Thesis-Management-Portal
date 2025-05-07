@@ -18,7 +18,7 @@ if ($conn->connect_error) {
 
 // Get current faculty email from session (assuming it's stored in session)
 // In a real application, you would have proper authentication
-$facultyEmail = isset($_SESSION['user_email']) ? $_SESSION['user_email'] : 'samiha@bracu.com'; // Default for testing
+$facultyEmail = $_SESSION['user_email'];
 
 // Get faculty information to use throughout the script
 $sql = "SELECT f.Initial, f.Domain, f.Availability2, f.Requirements, 
@@ -306,21 +306,15 @@ $conn->close();
   <div class="sidebar">
     <a href="faculty_dash.php">Dashboard</a>
     <a href="applyAsSupervisor.php">Apply as Supervisor</a>
-    <a href="#" class="active">Apply as Co-Supervisor</a>
-    <a href="#">Schedule</a>
+    <a href="applyAsCosupervisor.php" class="active">Apply as Co-Supervisor</a>
+    <a href="progress_fac_view.php">Reports</a>
+    <a href="get_schedules.php">Schedule</a>
+    <a href="thesisDB.php">Thesis Database</a>
   </div>
 
   <div class="main">
     <div class="topbar">
       <h1>THESIS MANAGEMENT SYSTEM</h1>
-      <div class="search-box">
-        <label for="search" style="margin-right: 8px;">Search</label>
-        <input type="text" id="search" placeholder="Search...">
-      </div>
-    </div>
-
-    <div class="date-display">
-      <?php echo date('Y-m-d H:i:s'); ?> UTC
     </div>
 
     <div class="content">

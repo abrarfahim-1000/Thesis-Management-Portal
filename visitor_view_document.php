@@ -251,7 +251,7 @@ $conn->close();
 
     .actions {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       margin-top: 20px;
     }
 
@@ -283,8 +283,15 @@ $conn->close();
   <div class="main">
     <div class="topbar">
       <h1>THESIS MANAGEMENT SYSTEM</h1>
+      <div class="search-box">
+        <label for="search" style="margin-right: 8px;">Search</label>
+        <input type="text" id="search" placeholder="Search...">
+      </div>
     </div>
 
+    <div class="date-display">
+      <?php echo date('Y-m-d H:i:s'); ?> UTC
+    </div>
 
     <div class="content">
       <div class="document-container">
@@ -334,7 +341,6 @@ $conn->close();
           
           <div class="actions">
             <a href="faculty_dash.php" class="btn">Back to Dashboard</a>
-            <a href="faculty_feedback.php?team_id=<?php echo $team_id; ?>" class="btn btn-secondary">Provide Feedback</a>
           </div>
         <?php else: ?>
           <div class="message error">

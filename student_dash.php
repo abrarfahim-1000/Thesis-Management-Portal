@@ -282,29 +282,20 @@ $conn->close();
 <body>
 
   <div class="sidebar">
-    <a href="student_dash.php">Dashboard</a>
+    <a href="student_dash.php" class="active">Dashboard</a>
     <a href="teamsearch.php">Team Search</a>
     <a href="supervisor.php">Supervisor</a>
     <a href="cosupervisor.php">Co-Supervisor</a>
-    <a href="get_schedule2.php" class="active">Schedule</a>
+    <a href="get_schedule2.php">Schedule</a>
     <a href="progressreport.php">Report Progress</a>
-    <a href="#">Plagiarism Checker</a>
-    <a href="#">Panelists</a>
     <a href="submit_thesis.php">Submit Thesis</a>
     <a href="student_feedback.php?team_id=<?php echo $studentData['Team_ID']; ?>">Feedback</a>
+    <a href="thesisdb.php">ThesisDB</a>
   </div>
 
   <div class="main">
     <div class="topbar">
       <h1>THESIS MANAGEMENT SYSTEM</h1>
-      <div class="search-box">
-        <label for="search" style="margin-right: 8px;">Search</label>
-        <input type="text" id="search" placeholder="Search...">
-      </div>
-    </div>
-
-    <div class="date-display">
-      <?php echo date('Y-m-d H:i:s'); ?> UTC
     </div>
 
     <div class="content">

@@ -234,6 +234,7 @@ function displayValue($value) {
       font-size: 20px;
       color: #002244;
       margin: 0;
+      margin-left: 23px; /* Added margin to move the title to the right */
     }
 
     .content {
@@ -462,23 +463,19 @@ function displayValue($value) {
 
   <div class="sidebar">
     <a href="student_dash.php">Dashboard</a>
-    <a href="team.php" class="active">Team Search</a>
-    <a href="supervisor.php">Supervisors</a>
-    <a href="cosupervisor.php">Co-Supervisors</a>
-    <a href="schedule.php">Schedule</a>
-    <a href="progress_report.php">Report Progress</a>
-    <a href="panelists.php">Panelists</a>
+    <a href="teamsearch.php" class="active">Team Search</a>
+    <a href="supervisor.php">Supervisor</a>
+    <a href="cosupervisor.php">Co-Supervisor</a>
+    <a href="get_schedule2.php">Schedule</a>
+    <a href="progressreport.php">Report Progress</a>
     <a href="submit_thesis.php">Submit Thesis</a>
-    <a href="feedback.php">Feedback</a>
+    <a href="student_feedback.php">Feedback</a>
+    <a href="thesisDB.php">Thesis Database</a>
   </div>
 
   <div class="main">
     <div class="topbar">
       <h1>THESIS MANAGEMENT SYSTEM</h1>
-    </div>
-
-    <div class="date-display">
-      <?php echo date('Y-m-d H:i:s'); ?> UTC
     </div>
 
     <div class="content">

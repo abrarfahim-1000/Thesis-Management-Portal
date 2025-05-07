@@ -155,17 +155,17 @@
 <body>
 
   <div class="sidebar">
-    <a href="#">Team Search</a>
-    <a href="#">Supervisor</a>
+    <a href="faculty_dash.php">Dashboard</a>
+    <a href="applyAsSupervisor.php">Apply as Supervisor</a>
+    <a href="applyAsCosupervisor.php">Apply as Co-Supervisor</a>
+    <a href="progress_fac_view.php">Reports</a>
     <a href="get_schedules.php" class="active">Schedule</a>
-    <a href="#">Submit Thesis</a>
-    <a href="#">Feedback</a>
+    <a href="thesisDB.php">Thesis Database</a>
   </div>
 
   <div class="main">
     <div class="topbar">
       <h1>THESIS MANAGEMENT SYSTEM</h1>
-      <div class="user-info">shahriar121-11</div>
     </div>
 
     <div class="content">
@@ -176,6 +176,9 @@
 
         <div class="events-list">
           <?php
+          // Start session to access faculty information
+          session_start();
+          
           // Database connection
           $servername = "localhost";
           $username = "root"; // Update if your database user is different
@@ -189,7 +192,25 @@
           if ($conn->connect_error) {
               die("Connection failed: " . $conn->connect_error);
           }
-
+          
+          // Get faculty initial from the logged-in user
+          $facultyEmail = isset($_SESSION['user_email']) ? $_SESSION['user_email'] : '';
+          $facultyInitial = '';
+          
+          if ($facultyEmail) {
+              $facultyQuery = "SELECT Initial FROM faculty WHERE User_Email = ?";
+              $facultyStmt = $conn->prepare($facultyQuery);
+              $facultyStmt->bind_param("s", $facultyEmail);
+              $facultyStmt->execute();
+              $facultyResult = $facultyStmt->get_result();
+              
+              if ($facultyResult->num_rows > 0) {
+                  $facultyData = $facultyResult->fetch_assoc();
+                  $facultyInitial = $facultyData['Initial'];
+              }
+              $facultyStmt->close();
+          }
+          
           // Update schedule status if a decision is made
           if ($_SERVER["REQUEST_METHOD"] == "POST") {
               $schedule_id = $_POST['schedule_id'];
@@ -197,9 +218,9 @@
 
               // Update the status based on the action
               $status = $action === 'accept' ? 'accepted' : 'rejected';
-              $update_sql = "UPDATE schedule SET status = ? WHERE SID = ?";
+              $update_sql = "UPDATE schedule SET status = ? WHERE SID = ? AND Initial = ?";
               $stmt = $conn->prepare($update_sql);
-              $stmt->bind_param("si", $status, $schedule_id);
+              $stmt->bind_param("sis", $status, $schedule_id, $facultyInitial);
 
               if ($stmt->execute()) {
                   echo "<p style='color: green;'>Schedule ID $schedule_id has been $status.</p>";
@@ -210,9 +231,12 @@
               $stmt->close();
           }
 
-          // Fetch schedules
-          $sql = "SELECT SID, Name, Team_ID, Initial, status FROM schedule";
-          $result = $conn->query($sql);
+          // Fetch schedules for the logged-in faculty only
+          $sql = "SELECT SID, Name, Team_ID, Initial, status FROM schedule WHERE Initial = ?";
+          $stmt = $conn->prepare($sql);
+          $stmt->bind_param("s", $facultyInitial);
+          $stmt->execute();
+          $result = $stmt->get_result();
 
           if ($result->num_rows > 0) {
               echo "<table class='events-table'>";
@@ -240,9 +264,10 @@
               }
               echo "</tbody></table>";
           } else {
-              echo "<p>No schedules found.</p>";
+              echo "<p>No schedules found for you.</p>";
           }
 
+          $stmt->close();
           $conn->close();
           ?>
         </div>

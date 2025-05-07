@@ -37,7 +37,7 @@ $teamsUnderSupervision = [];
 if ($facultyData) {
     $sql = "SELECT tt.Team_ID, td.Topic, td.ThesisID, td.ID as DocumentID,
             (SELECT COUNT(*) FROM student s WHERE s.Team_ID = tt.Team_ID) as MemberCount,
-            (SELECT COUNT(*) FROM progress_report pr WHERE pr.Thesis_Team_ID = tt.Team_ID) as HasSubmission
+            (SELECT COUNT(*) FROM thesis_document td WHERE td.TeamID = tt.Team_ID) as HasSubmission
             FROM thesis_team tt 
             LEFT JOIN thesis_document td ON tt.Team_ID = td.TeamID 
             WHERE tt.Initial = ?
@@ -310,6 +310,11 @@ $conn->close();
       color: #721c24;
     }
 
+    .neutral {
+      background-color: #ffeeba;
+      color: #856404;
+    }
+
     .date-display {
       text-align: right;
       padding: 10px 20px;
@@ -321,25 +326,18 @@ $conn->close();
 <body>
 
   <div class="sidebar">
+    <a href="faculty_dash.php" class="active">Dashboard</a>
     <a href="applyAsSupervisor.php">Apply as Supervisor</a>
     <a href="applyAsCosupervisor.php">Apply as Co-Supervisor</a>
     <a href="progress_fac_view.php">Reports</a>
     <a href="get_schedules.php">Schedule</a>
-    <a href="#">Plagiarism Checker</a>
-    <a href="#">Panelists</a>
+    <a href="thesisDB.php">Thesis Database</a>
+
   </div>
 
   <div class="main">
     <div class="topbar">
       <h1>THESIS MANAGEMENT SYSTEM</h1>
-      <div class="search-box">
-        <label for="search" style="margin-right: 8px;">Search</label>
-        <input type="text" id="search" placeholder="Search...">
-      </div>
-    </div>
-
-    <div class="date-display">
-      <?php echo date('Y-m-d H:i:s'); ?> UTC
     </div>
 
     <div class="content">
@@ -399,15 +397,19 @@ $conn->close();
               <?php foreach ($teamsUnderSupervision as $team): ?>
                 <tr>
                   <td>
-                    <a href="team_details.php?team_id=<?php echo $team['Team_ID']; ?><?php echo isset($team['ThesisID']) && $team['ThesisID'] ? '&thesis_id='.$team['ThesisID'] : ''; ?>" class="team-id"><?php echo $team['Team_ID']; ?></a>
+                    <a href="team_details_faculty.php?team_id=<?php echo $team['Team_ID']; ?><?php echo isset($team['ThesisID']) && $team['ThesisID'] ? '&thesis_id='.$team['ThesisID'] : ''; ?>" class="team-id"><?php echo $team['Team_ID']; ?></a>
                   </td>
                   <td><?php echo displayValue($team['Topic']); ?></td>
                   <td><?php echo $team['memberCount']; ?></td>
                   <td>
                     <?php if ($team['HasSubmission'] > 0): ?>
-                      <span class="submit-indicator submitted">Submitted</span>
+                      <?php if (isset($team['ThesisID']) && $team['ThesisID']): ?>
+                        <span class="submit-indicator submitted">Submitted</span>
+                      <?php else: ?>
+                        <span class="submit-indicator submitted">Submitted</span>
+                      <?php endif; ?>
                     <?php else: ?>
-                      <span class="submit-indicator not-submitted">Not Submitted</span>
+                      <span class="submit-indicator neutral">No New Updates</span>
                     <?php endif; ?>
                   </td>
                   <td>

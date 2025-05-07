@@ -42,13 +42,13 @@ if ($teamId === null) {
 // Get thesis ID for the team
 $thesisId = null;
 if ($teamId) {
-    $sql = "SELECT ThesisID FROM thesis_document WHERE TeamID = ?";
+    $sql = "SELECT ID FROM thesis_document WHERE TeamID = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $teamId);
     $stmt->execute();
     $result = $stmt->get_result();
     if ($row = $result->fetch_assoc()) {
-        $thesisId = $row['ThesisID'];
+        $thesisId = $row['ID'];
     }
 }
 
@@ -278,23 +278,13 @@ $conn->close();
     <a href="cosupervisor.php">Co-Supervisor</a>
     <a href="get_schedule2.php">Schedule</a>
     <a href="progressreport.php">Report Progress</a>
-    <a href="#">Plagiarism Checker</a>
-    <a href="#">Panelists</a>
     <a href="submit_thesis.php">Submit Thesis</a>
-    <a href="student_feedback.php?team_id=<?php echo $teamId; ?>" class="active">Feedback</a>
+    <a href="student_feedback.php" class="active">Feedback</a>
   </div>
 
   <div class="main">
     <div class="topbar">
       <h1>THESIS MANAGEMENT SYSTEM</h1>
-      <div class="search-box">
-        <label for="search" style="margin-right: 8px;">Search</label>
-        <input type="text" id="search" placeholder="Search...">
-      </div>
-    </div>
-
-    <div class="date-display">
-      <?php echo date('Y-m-d H:i:s'); ?> UTC
     </div>
 
     <div class="content">

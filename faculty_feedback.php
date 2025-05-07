@@ -478,14 +478,6 @@ $conn->close();
   <div class="main">
     <div class="topbar">
       <h1>THESIS MANAGEMENT SYSTEM</h1>
-      <div class="search-box">
-        <label for="search" style="margin-right: 8px;">Search</label>
-        <input type="text" id="search" placeholder="Search...">
-      </div>
-    </div>
-
-    <div class="date-display">
-      <?php echo date('Y-m-d H:i:s'); ?> UTC
     </div>
 
     <div class="content">

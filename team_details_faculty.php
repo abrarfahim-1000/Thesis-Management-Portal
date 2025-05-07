@@ -244,14 +244,11 @@ $conn->close();
 <body>
 
   <div class="sidebar">
-    <a href="student_dash.php">Dashboard</a>
-    <a href="teamsearch.php">Team Search</a>
-    <a href="supervisor.php">Supervisor</a>
-    <a href="cosupervisor.php">Co-Supervisor</a>
-    <a href="get_schedule2.php">Schedule</a>
-    <a href="progressreport.php">Report Progress</a>
-    <a href="submit_thesis.php">Submit Thesis</a>
-    <a href="student_feedback.php">Feedback</a>
+  <a href="applyAsSupervisor.php">Apply as Supervisor</a>
+    <a href="applyAsCosupervisor.php">Apply as Co-Supervisor</a>
+    <a href="get_schedules.php">Schedule</a>
+    <a href="#">Plagiarism Checker</a>
+    <a href="#">Panelists</a>
   </div>
 
   <div class="main">
@@ -324,7 +321,7 @@ $conn->close();
           <p>No team members found for this team.</p>
         <?php endif; ?>
 
-        <a href="student_dash.php" class="btn">Back to Dashboard</a>
+        <a href="faculty_dash.php" class="btn">Back to Dashboard</a>
       </div>
       <?php else: ?>
         <div class="card">

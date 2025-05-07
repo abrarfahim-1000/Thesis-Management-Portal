@@ -71,27 +71,29 @@ function formatDomainTags($domain) {
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f2f8fc;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #e0f0ff, #b3d9ff);
       color: #003366;
       display: flex;
       height: 100vh;
     }
 
+    /* Sidebar */
     .sidebar {
       width: 200px;
       background-color: #d0e7f9;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
       padding: 20px 10px;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     }
 
     .sidebar a {
-      display: block;
-      color: #003366;
       text-decoration: none;
+      color: #003366;
       padding: 10px;
       margin-bottom: 10px;
-      border-radius: 5px;
+      border-radius: 6px;
       transition: background 0.3s;
     }
 
@@ -227,19 +229,17 @@ function formatDomainTags($domain) {
     <a href="student_dash.php">Dashboard</a>
     <a href="teamsearch.php">Team Search</a>
     <a href="supervisor.php">Supervisor</a>
-    <a href="#" class="active">Co-Supervisor</a>
-    <a href="#">Schedule</a>
-    <a href="#">Submit Thesis</a>
-    <a href="#">Feedback</a>
+    <a href="cosupervisor.php" class="active">Co-Supervisor</a>
+    <a href="get_schedule2.php">Schedule</a>
+    <a href="progressreport.php">Report Progress</a>
+    <a href="submit_thesis.php">Submit Thesis</a>
+    <a href="student_feedback.php">Feedback</a>
+    <a href="thesisDB.php">Thesis Database</a>
   </div>
 
   <div class="main">
     <div class="topbar">
       <h1>THESIS MANAGEMENT SYSTEM</h1>
-    </div>
-
-    <div class="date-display">
-      <?php echo date('Y-m-d H:i:s'); ?> UTC
     </div>
 
     <div class="content">
