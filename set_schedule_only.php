@@ -97,9 +97,6 @@
     <h1>Create a New Schedule</h1>
 
     <?php
-    // Get the initial from the URL parameter if available
-    $initial = isset($_GET['initial']) ? htmlspecialchars($_GET['initial']) : '';
-
     // Database connection
     $servername = "localhost";
     $username = "root";
@@ -187,7 +184,7 @@
       <input type="number" id="team_id" name="team_id" placeholder="Enter your Team ID" required>
 
       <label for="faculty_initial">Faculty Initial:</label>
-      <input type="text" id="faculty_initial" name="faculty_initial" placeholder="Enter Faculty Initial" value="<?php echo $initial; ?>" required>
+      <input type="text" id="faculty_initial" name="faculty_initial" placeholder="Enter Faculty Initial" required>
 
       <label for="event_date">Date:</label>
       <input type="date" id="event_date" name="event_date" required>

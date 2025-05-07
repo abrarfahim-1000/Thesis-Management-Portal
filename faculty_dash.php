@@ -35,10 +35,13 @@ $facultyData = $result->fetch_assoc();
 // Get teams under supervision
 $teamsUnderSupervision = [];
 if ($facultyData) {
-    $sql = "SELECT tt.Team_ID, td.Topic, td.ThesisID 
+    $sql = "SELECT tt.Team_ID, td.Topic, td.ThesisID, td.ID as DocumentID,
+            (SELECT COUNT(*) FROM student s WHERE s.Team_ID = tt.Team_ID) as MemberCount,
+            (SELECT COUNT(*) FROM progress_report pr WHERE pr.Thesis_Team_ID = tt.Team_ID) as HasSubmission
             FROM thesis_team tt 
             LEFT JOIN thesis_document td ON tt.Team_ID = td.TeamID 
-            WHERE tt.Initial = ?";
+            WHERE tt.Initial = ?
+            ORDER BY tt.Team_ID";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $facultyData['Initial']);
     $stmt->execute();
@@ -112,7 +115,11 @@ $conn->close();
       background-color: #c0ddf0;
     }
 
-    /* Main section */
+    .sidebar a.active {
+      background-color: #0055cc;
+      color: white;
+    }
+
     .main {
       flex: 1;
       display: flex;
@@ -149,17 +156,28 @@ $conn->close();
     }
 
     /* Content area */
+    .date-display {
+      text-align: right;
+      padding: 10px 20px;
+      color: #666;
+      font-size: 0.9em;
+    }
+    
     .content {
       padding: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 20px;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
     }
 
     .header-title {
       text-align: center;
       margin-bottom: 10px;
+      width: 100%;
     }
 
     .card {
@@ -167,7 +185,6 @@ $conn->close();
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       width: 100%;
-      max-width: 1000px;
       padding: 20px;
     }
 
@@ -192,14 +209,6 @@ $conn->close();
       grid-template-columns: 1fr;
       gap: 20px;
       width: 100%;
-      max-width: 1000px;
-    }
-
-    .dashboard-item {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 20px;
     }
 
     .dashboard-item h3 {
@@ -227,6 +236,19 @@ $conn->close();
     }
 
     /* Team table styles */
+    .btn-secondary {
+      background-color: #28a745;
+    }
+
+    .btn-secondary:hover {
+      background-color: #218838;
+    }
+
+    .btn-disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
     .teams-table {
       width: 100%;
       border-collapse: collapse;
@@ -254,9 +276,38 @@ $conn->close();
     }
 
     .team-id {
-      color: #0055cc;
-      text-decoration: underline;
+      display: inline-block;
+      background-color: #0055cc;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      text-align: center;
+      min-width: 30px;
       cursor: pointer;
+      text-decoration: none;
+    }
+
+    .team-id:hover {
+      background-color: #0044aa;
+    }
+
+    .submit-indicator {
+      display: inline-block;
+      padding: 3px 6px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .submitted {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .not-submitted {
+      background-color: #f8d7da;
+      color: #721c24;
     }
 
     .date-display {
@@ -273,7 +324,7 @@ $conn->close();
     <a href="applyAsSupervisor.php">Apply as Supervisor</a>
     <a href="applyAsCosupervisor.php">Apply as Co-Supervisor</a>
     <a href="progress_fac_view.php">Reports</a>
-    <a href="#">Schedule</a>
+    <a href="get_schedules.php">Schedule</a>
     <a href="#">Plagiarism Checker</a>
     <a href="#">Panelists</a>
   </div>
@@ -331,36 +382,50 @@ $conn->close();
         </div>
       </div>
 
-      <div class="dashboard-grid">
-        <div class="dashboard-item">
-          <h3>Teams Under Supervision</h3>
-          <?php if (!empty($teamsUnderSupervision)): ?>
-            <table class="teams-table">
-              <thead>
+      <div class="card">
+        <h3>Teams Under Supervision</h3>
+        <?php if (!empty($teamsUnderSupervision)): ?>
+          <table class="teams-table">
+            <thead>
+              <tr>
+                <th>Team ID</th>
+                <th>Thesis Topic</th>
+                <th>Members</th>
+                <th>Submission Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($teamsUnderSupervision as $team): ?>
                 <tr>
-                  <th>Team ID</th>
-                  <th>Thesis Topic</th>
-                  <th>Members</th>
-                  <th>Actions</th>
+                  <td>
+                    <a href="team_details.php?team_id=<?php echo $team['Team_ID']; ?><?php echo isset($team['ThesisID']) && $team['ThesisID'] ? '&thesis_id='.$team['ThesisID'] : ''; ?>" class="team-id"><?php echo $team['Team_ID']; ?></a>
+                  </td>
+                  <td><?php echo displayValue($team['Topic']); ?></td>
+                  <td><?php echo $team['memberCount']; ?></td>
+                  <td>
+                    <?php if ($team['HasSubmission'] > 0): ?>
+                      <span class="submit-indicator submitted">Submitted</span>
+                    <?php else: ?>
+                      <span class="submit-indicator not-submitted">Not Submitted</span>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <?php if ($team['HasSubmission'] > 0): ?>
+                      <a href="view_document.php?team_id=<?php echo $team['Team_ID']; ?>" class="btn btn-secondary">See Document</a>
+                      <a href="faculty_feedback.php?team_id=<?php echo $team['Team_ID']; ?><?php echo isset($team['ThesisID']) && $team['ThesisID'] ? '&thesis_id='.$team['ThesisID'] : ''; ?>" class="btn">Send Feedback</a>
+                    <?php else: ?>
+                      <span class="btn btn-disabled">See Document</span>
+                      <span class="btn btn-disabled">Send Feedback</span>
+                    <?php endif; ?>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                <?php foreach ($teamsUnderSupervision as $team): ?>
-                  <tr>
-                    <td><a href="#" class="team-id"><?php echo $team['Team_ID']; ?></a></td>
-                    <td><?php echo displayValue($team['Topic']); ?></td>
-                    <td><?php echo $team['memberCount']; ?></td>
-                    <td>
-                      <a href="feedback.php?team_id=<?php echo $team['Team_ID']; ?>&thesis_id=<?php echo $team['ThesisID']; ?>" class="btn">Send Feedback</a>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
-          <?php else: ?>
-            <p>You do not have any teams under your supervision.</p>
-          <?php endif; ?>
-        </div>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        <?php else: ?>
+          <p>You currently have no teams under your supervision.</p>
+        <?php endif; ?>
       </div>
     </div>
   </div>

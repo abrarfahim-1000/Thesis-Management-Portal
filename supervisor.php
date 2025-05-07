@@ -265,7 +265,7 @@ function formatDomainTags($domain) {
                   echo "<td>" . formatDomainTags($row["Domain"]) . "</td>";
                   echo "<td>";
                   if ($row["Availability"] == 1) {
-                      echo "<a href='request_supervisor.php?initial=" . $row["Initial"] . "' class='request-btn'>Request</a>";
+                      echo "<a href='request_supervisor.php?initial=" . urlencode($row["Initial"]) . "' class='request-btn'>Request</a>";
                   } else {
                       echo "<span class='disabled-btn'>Request</span>";
                   }

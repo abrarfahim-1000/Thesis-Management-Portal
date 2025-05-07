@@ -33,6 +33,7 @@ $studentData = $result->fetch_assoc();
 
 // Get thesis information if student has a team
 $thesisInfo = null;
+$hasSupervisor = false;
 if ($studentData && $studentData['Team_ID']) {
     $sql = "SELECT td.Topic, td.Supervisor, f.Initial, u.Name as SupervisorName 
             FROM thesis_document td 
@@ -45,6 +46,11 @@ if ($studentData && $studentData['Team_ID']) {
     $stmt->execute();
     $result = $stmt->get_result();
     $thesisInfo = $result->fetch_assoc();
+    
+    // Check if supervisor is assigned
+    if ($thesisInfo && $thesisInfo['Supervisor']) {
+        $hasSupervisor = true;
+    }
 }
 
 // Get team members if student has a team
@@ -109,6 +115,11 @@ $conn->close();
 
     .sidebar a:hover {
       background-color: #c0ddf0;
+    }
+
+    .sidebar a.active {
+      background-color: #0055cc;
+      color: white;
     }
 
     /* Main section */
@@ -218,10 +229,19 @@ $conn->close();
       font-size: 14px;
       text-decoration: none;
       display: inline-block;
+      margin-top: 10px;
     }
 
     .btn:hover {
       background-color: #0044aa;
+    }
+
+    .btn-register {
+      background-color: #28a745;
+    }
+
+    .btn-register:hover {
+      background-color: #218838;
     }
 
     /* Team table styles */
@@ -266,12 +286,12 @@ $conn->close();
     <a href="teamsearch.php">Team Search</a>
     <a href="supervisor.php">Supervisor</a>
     <a href="cosupervisor.php">Co-Supervisor</a>
-    <a href="#">Schedule</a>
+    <a href="get_schedule2.php" class="active">Schedule</a>
     <a href="progressreport.php">Report Progress</a>
     <a href="#">Plagiarism Checker</a>
     <a href="#">Panelists</a>
-    <a href="#">Submit Thesis</a>
-    <a href="#">Feedback</a>
+    <a href="submit_thesis.php">Submit Thesis</a>
+    <a href="student_feedback.php?team_id=<?php echo $studentData['Team_ID']; ?>">Feedback</a>
   </div>
 
   <div class="main">
@@ -329,10 +349,16 @@ $conn->close();
           <?php if ($thesisInfo): ?>
             <p><strong>Title:</strong> <?php echo displayValue($thesisInfo['Topic']); ?></p>
             <p><strong>Supervisor:</strong> <?php echo displayValue($thesisInfo['SupervisorName']) . ' (' . displayValue($thesisInfo['Initial']) . ')'; ?></p>
+            <a href="team_details.php?team_id=<?php echo $studentData['Team_ID']; ?>" class="btn">View Details</a>
+          <?php elseif ($studentData && $studentData['Team_ID'] && !$hasSupervisor): ?>
+            <p>Your team has no supervisor assigned yet.</p>
+            <a href="register_thesis.php?team_id=<?php echo $studentData['Team_ID']; ?>" class="btn btn-register">Register Thesis</a>
           <?php else: ?>
-            <p>No thesis information available. You may need to join a team first.</p>
+            <p>No thesis information available. You need to join or create a team first.</p>
+            <?php if (!$studentData['Team_ID']): ?>
+              <a href="register_thesis.php" class="btn btn-register">Register Team & Thesis</a>
+            <?php endif; ?>
           <?php endif; ?>
-          <a href="#" class="btn">View Details</a>
         </div>
 
         <div class="dashboard-item">

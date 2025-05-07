@@ -17,6 +17,28 @@ $matchingResults = [];
 $message = "";
 $allTeamSearchData = []; // To store all team_search data
 
+// Handle team registration
+if (isset($_POST['action']) && $_POST['action'] == 'register_team') {
+    $team_id = $_POST['team_id'] ?? '';
+    $email = $_POST['user_email'] ?? '';
+    
+    if (!empty($team_id) && !empty($email)) {
+        // Update the student's team_id in the database
+        $update_sql = "UPDATE student SET Team_ID = ? WHERE User_Email = ?";
+        $stmt = $conn->prepare($update_sql);
+        $stmt->bind_param("ss", $team_id, $email);
+        
+        if ($stmt->execute()) {
+            $message = "Successfully registered to team ID: " . $team_id;
+        } else {
+            $message = "Error: Failed to register to team. " . $stmt->error;
+        }
+        $stmt->close();
+    } else {
+        $message = "Error: Missing team ID or email.";
+    }
+}
+
 // Fetch all team_search data regardless of form submission
 $all_data_sql = "SELECT ts.*, u.Name, u.Email, s.CGPA, s.Student_ID 
                 FROM team_search ts
@@ -108,9 +130,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         $stmt->close();
         
-        // Filter matching results to only include rows where interest matches exactly
-        $matchingResults = array_filter($matchingResults, function($row) use ($interest) {
-            return strtolower($row['Interest']) === strtolower($interest);
+        // Filter matching results to only include rows where:
+        // 1. Interest matches exactly
+        // 2. Required CGPA is <= student's specified CGPA
+        $matchingResults = array_filter($matchingResults, function($row) use ($interest, $cgpa) {
+            return strtolower($row['Interest']) === strtolower($interest) &&
+                   floatval($row['Requ_cg']) <= $cgpa;
         });
 
         // If no matching results, set a message
@@ -442,7 +467,6 @@ function displayValue($value) {
     <a href="cosupervisor.php">Co-Supervisors</a>
     <a href="schedule.php">Schedule</a>
     <a href="progress_report.php">Report Progress</a>
-    <a href="plagiarism_checker.php">Plagiarism Checker</a>
     <a href="panelists.php">Panelists</a>
     <a href="submit_thesis.php">Submit Thesis</a>
     <a href="feedback.php">Feedback</a>
@@ -532,6 +556,8 @@ function displayValue($value) {
                       <th>Semester</th>
                       <th>Required CGPA</th>
                       <th>Email</th>
+                      <th>Team ID</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -541,6 +567,17 @@ function displayValue($value) {
                         <td><?= htmlspecialchars(displayValue($row['Beginning_Semester'])) ?></td>
                         <td><?= htmlspecialchars(displayValue($row['Requ_cg'])) ?></td>
                         <td><?= htmlspecialchars(displayValue($row['email'])) ?></td>
+                        <td><?= htmlspecialchars(displayValue($row['Team_ID'])) ?></td>
+                        <td>
+                          <?php if (!empty($row['Team_ID'])): ?>
+                            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+                              <input type="hidden" name="team_id" value="<?= htmlspecialchars($row['Team_ID']) ?>">
+                              <input type="hidden" name="action" value="register_team">
+                              <input type="hidden" name="user_email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                              <button type="submit" class="contact-btn">Register</button>
+                            </form>
+                          <?php endif; ?>
+                        </td>
                       </tr>
                     <?php endforeach; ?>
                   </tbody>
@@ -562,8 +599,9 @@ function displayValue($value) {
                     <th>Interest</th>
                     <th>Semester</th>
                     <th>Required CGPA</th>
-                    <th>Team ID</th>
                     <th>Email</th>
+                    <th>Team ID</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -573,8 +611,18 @@ function displayValue($value) {
                       <td><?= htmlspecialchars(displayValue($row['Interest'])) ?></td>
                       <td><?= htmlspecialchars(displayValue($row['Beginning_Semester'])) ?></td>
                       <td><?= htmlspecialchars(displayValue($row['Requ_cg'])) ?></td>
-                      <td><?= htmlspecialchars(displayValue($row['Team_ID'])) ?></td>
                       <td><?= htmlspecialchars(displayValue($row['email'])) ?></td>
+                      <td><?= htmlspecialchars(displayValue($row['Team_ID'])) ?></td>
+                      <td>
+                        <?php if (!empty($row['Team_ID'])): ?>
+                          <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+                            <input type="hidden" name="team_id" value="<?= htmlspecialchars($row['Team_ID']) ?>">
+                            <input type="hidden" name="action" value="register_team">
+                            <input type="hidden" name="user_email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                            <button type="submit" class="contact-btn">Register</button>
+                          </form>
+                        <?php endif; ?>
+                      </td>
                     </tr>
                   <?php endforeach; ?>
                 </tbody>
