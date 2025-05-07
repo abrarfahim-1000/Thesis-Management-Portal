@@ -21,7 +21,7 @@ if ($conn->connect_error) {
 $facultyEmail = isset($_SESSION['user_email']) ? $_SESSION['user_email'] : 'samiha@bracu.com'; // Default for testing
 
 // Get faculty information to use throughout the script
-$sql = "SELECT f.Initial, f.Domain, f.Availability, f.Requirements, 
+$sql = "SELECT f.Initial, f.Domain, f.Availability2, f.Requirements, 
         u.Name, u.Email 
         FROM faculty f 
         JOIN user u ON f.User_Email = u.Email 
@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $availability = isset($_POST['availability']) && $_POST['availability'] == 'yes' ? 1 : 0;
 
     // Update faculty information
-    $sql = "UPDATE faculty SET Domain = ?, Requirements = ?, Availability = ? WHERE User_Email = ?";
+    $sql = "UPDATE faculty SET Domain = ?, Requirements = ?, Availability2 = ? WHERE User_Email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssis", $researchInterests, $requirements, $availability, $facultyEmail);
 
@@ -304,10 +304,10 @@ $conn->close();
 <body>
 
   <div class="sidebar">
-    <a href="#">Apply as Supervisor</a>
+    <a href="faculty_dash.php">Dashboard</a>
+    <a href="applyAsSupervisor.php">Apply as Supervisor</a>
     <a href="#" class="active">Apply as Co-Supervisor</a>
     <a href="#">Schedule</a>
-    <a href="faculty-dashboard.php">Dashboard</a>
   </div>
 
   <div class="main">
@@ -364,12 +364,12 @@ $conn->close();
             <div class="radio-group">
               <div class="radio-option">
                 <input type="radio" id="availability_yes" name="availability" value="yes" 
-                       <?php echo (isset($facultyData['Availability']) && $facultyData['Availability'] == 1) ? 'checked' : ''; ?>>
+                       <?php echo (isset($facultyData['Availability2']) && $facultyData['Availability2'] == 1) ? 'checked' : ''; ?>>
                 <label for="availability_yes">Yes, I am available to co-supervise thesis</label>
               </div>
               <div class="radio-option">
                 <input type="radio" id="availability_no" name="availability" value="no"
-                       <?php echo (isset($facultyData['Availability']) && $facultyData['Availability'] == 0) ? 'checked' : ''; ?>>
+                       <?php echo (isset($facultyData['Availability2']) && $facultyData['Availability2'] == 0) ? 'checked' : ''; ?>>
                 <label for="availability_no">No, I am not available at this time</label>
               </div>
             </div>

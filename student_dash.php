@@ -262,11 +262,12 @@ $conn->close();
 <body>
 
   <div class="sidebar">
-    <a href="#">Team Search</a>
+    <a href="student_dash.php">Dashboard</a>
+    <a href="teamsearch.php">Team Search</a>
     <a href="supervisor.php">Supervisor</a>
     <a href="cosupervisor.php">Co-Supervisor</a>
     <a href="#">Schedule</a>
-    <a href="#">Report Progress</a>
+    <a href="progressreport.php">Report Progress</a>
     <a href="#">Plagiarism Checker</a>
     <a href="#">Panelists</a>
     <a href="#">Submit Thesis</a>

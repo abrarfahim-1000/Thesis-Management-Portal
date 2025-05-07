@@ -219,8 +219,10 @@ function formatDomainTags($domain) {
 <body>
 
   <div class="sidebar">
-    <a href="#">Team Search</a>
+    <a href="student_dash.php">Dashboard</a>
+    <a href="teamsearch.php">Team Search</a>
     <a href="#" class="active">Supervisor</a>
+    <a href="cosupervisor.php">Co-Supervisor</a>
     <a href="#">Schedule</a>
     <a href="#">Submit Thesis</a>
     <a href="#">Feedback</a>

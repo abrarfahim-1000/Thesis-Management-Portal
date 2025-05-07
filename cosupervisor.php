@@ -17,7 +17,7 @@ if ($conn->connect_error) {
 }
 
 // Get co-supervisors from the database
-$sql = "SELECT f.Initial, f.Domain, f.Availability, f.Requirements, f.department, 
+$sql = "SELECT f.Initial, f.Domain, f.Availability2, f.Requirements, f.department, 
         u.Name, u.Email, u.Department as UserDepartment 
         FROM co_supervisor cs 
         JOIN faculty f ON cs.E_Initial = f.Initial 
@@ -224,7 +224,8 @@ function formatDomainTags($domain) {
 <body>
 
   <div class="sidebar">
-    <a href="#">Team Search</a>
+    <a href="student_dash.php">Dashboard</a>
+    <a href="teamsearch.php">Team Search</a>
     <a href="supervisor.php">Supervisor</a>
     <a href="#" class="active">Co-Supervisor</a>
     <a href="#">Schedule</a>
@@ -264,11 +265,11 @@ function formatDomainTags($domain) {
                   echo "<td><div class='initial-circle'>" . $row["Initial"] . "</div></td>";
                   echo "<td>" . displayValue($row["Name"]) . "</td>";
                   echo "<td>" . displayValue($row["department"] ? $row["department"] : $row["UserDepartment"]) . "</td>";
-                  echo "<td>" . displayAvailability($row["Availability"]) . "</td>";
+                  echo "<td>" . displayAvailability($row["Availability2"]) . "</td>";
                   echo "<td>" . displayValue($row["Requirements"]) . "</td>";
                   echo "<td>" . formatDomainTags($row["Domain"]) . "</td>";
                   echo "<td>";
-                  if ($row["Availability"] == 1) {
+                  if ($row["Availability2"] == 1) {
                       echo '<a href="request_supervisor.php?initial=' . $row['Initial'] . '" class="request-btn">Request</a>';
                   } else {
                       echo '<span class="disabled-btn">Request</span>';

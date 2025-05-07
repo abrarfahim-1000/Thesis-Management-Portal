@@ -271,11 +271,8 @@ $conn->close();
 
   <div class="sidebar">
     <a href="applyAsSupervisor.php">Apply as Supervisor</a>
-<<<<<<< HEAD
     <a href="applyAsCosupervisor.php">Apply as Co-Supervisor</a>
-=======
-    <a href="applyAsCosup.php">Apply as Co-Supervisor</a>
->>>>>>> db1176c0d510f82a112386f12661f02a7d8aac8e
+    <a href="progress_fac_view.php">Reports</a>
     <a href="#">Schedule</a>
     <a href="#">Plagiarism Checker</a>
     <a href="#">Panelists</a>

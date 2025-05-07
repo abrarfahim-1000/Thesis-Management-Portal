@@ -36,10 +36,8 @@ $stmt->close();
 // Check if form is submitted
 $successMessage = "";
 $errorMessage = "";
-$formSubmitted = false;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $formSubmitted = true;
     // Get form data
     $researchInterests = $_POST['research_interests'];
     $requirements = $_POST['requirements'];
@@ -68,10 +66,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $insertStmt->execute();
                 $insertStmt->close();
                 $successMessage = "Supervisor status updated.";
-                
-                // Reset form data
-                $researchInterests = "";
-                $requirements = "";
             } else {
                 $successMessage = "You are already a supervisor.";
             }
@@ -97,10 +91,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $deleteStmt->execute();
                     $deleteStmt->close();
                     $successMessage = "Supervisor status updated.";
-                    
-                    // Reset form data
-                    $researchInterests = "";
-                    $requirements = "";
                 } catch (Exception $e) {
                     $errorMessage = "You have theses under your supervision. You cannot recuse yourself.";
                 }
@@ -124,30 +114,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = $stmt->get_result();
     $facultyData = $result->fetch_assoc();
     $stmt->close();
-    
-    // Use PHP header to redirect and refresh the page to clear form fields
-    if ($successMessage != "") {
-        // Store success message in session to display after redirect
-        $_SESSION['success_message'] = $successMessage;
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
-    }
-}
-
-// Check for success message in session and display it
-if (isset($_SESSION['success_message'])) {
-    $successMessage = $_SESSION['success_message'];
-    unset($_SESSION['success_message']); // Clear the message after using it
-    
-    // Set a timestamp to control notification display time
-    $_SESSION['notification_timestamp'] = time();
-}
-
-// Auto-hide notifications after 3 seconds
-if (isset($_SESSION['notification_timestamp']) && (time() - $_SESSION['notification_timestamp'] > 3)) {
-    $successMessage = "";
-    $errorMessage = "";
-    unset($_SESSION['notification_timestamp']);
 }
 
 // Close the database connection
@@ -368,10 +334,10 @@ $conn->close();
 <body>
 
   <div class="sidebar">
-    <a href="#" class="active">Apply as Supervisor</a>
-    <a href="applyAsCosup.php">Apply as Co-Supervisor</a>
-    <a href="#">Schedule</a>
     <a href="faculty_dash.php">Dashboard</a>
+    <a href="#" class="active">Apply as Supervisor</a>
+    <a href="applyAsCosupervisor.php">Apply as Co-Supervisor</a>
+    <a href="#">Schedule</a>
   </div>
 
   <div class="main">
@@ -411,7 +377,7 @@ $conn->close();
             <label for="research_interests">Research Interests</label>
             <input type="text" id="research_interests" name="research_interests" class="form-control" 
                    placeholder="Enter your research interests (e.g., Machine Learning, AI, Data Science)" 
-                   value="<?php echo isset($facultyData['Domain']) && !$formSubmitted ? $facultyData['Domain'] : ''; ?>">
+                   value="<?php echo isset($facultyData['Domain']) ? $facultyData['Domain'] : ''; ?>">
             <small>This will be stored in the Domain field of the faculty table.</small>
           </div>
 
@@ -419,7 +385,7 @@ $conn->close();
             <label for="requirements">Requirements for Students (Minimum CGPA)</label>
             <input type="number" id="requirements" name="requirements" class="form-control" 
                    step="0.01" min="0" max="4.00" placeholder="Enter minimum CGPA requirement (e.g., 3.50)"
-                   value="<?php echo isset($facultyData['Requirements']) && !$formSubmitted ? $facultyData['Requirements'] : ''; ?>">
+                   value="<?php echo isset($facultyData['Requirements']) ? $facultyData['Requirements'] : ''; ?>">
             <small>Enter the minimum CGPA required for students to apply.</small>
           </div>
 
@@ -447,12 +413,39 @@ $conn->close();
           <div class="form-actions">
             <a href="faculty-dashboard.php" class="btn btn-secondary">Cancel</a>
             <button type="submit" class="btn">Submit Application</button>
-            <button type="reset" class="btn btn-secondary">Reset Form</button>
           </div>
         </form>
       </div>
     </div>
   </div>
 
+  <script>
+    // JavaScript to handle automatic hiding of alerts after 3 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+      const successAlert = document.getElementById('success-alert');
+      const errorAlert = document.getElementById('error-alert');
+      
+      if (successAlert) {
+        setTimeout(function() {
+          successAlert.style.opacity = '0';
+          setTimeout(function() {
+            successAlert.style.display = 'none';
+          }, 500); // Wait for fade-out animation to complete
+        }, 3000); // 3 seconds delay
+      }
+      
+      if (errorAlert) {
+        setTimeout(function() {
+          errorAlert.style.opacity = '0';
+          setTimeout(function() {
+            errorAlert.style.display = 'none';
+          }, 500); // Wait for fade-out animation to complete
+        }, 3000); // 3 seconds delay
+      }
+    });
+
+    // Form handling and other existing scripts
+    // ...existing code...
+  </script>
 </body>
 </html>
