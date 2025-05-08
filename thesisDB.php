@@ -200,6 +200,7 @@ $conn->close();
     <a href="progress_fac_view.php">Reports</a>
     <a href="get_schedules.php">Schedule</a>
     <a href="thesisDB.php" class="active">Thesis Database</a>
+    <a href="assign_panel.php">Panelists</a>
   </div>
   <!-- Sidebar for Students -->
   <?php else: ?>
