@@ -340,6 +340,7 @@ $conn->close();
     <a href="progress_fac_view.php">Reports</a>
     <a href="get_schedules.php">Schedule</a>
     <a href="thesisDB.php">Thesis Database</a>
+    <a href="assign_panel.php">Panelists</a>
   </div>
 
   <div class="main">
