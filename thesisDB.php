@@ -210,10 +210,9 @@ $conn->close();
     <a href="cosupervisor.php">Co-Supervisor</a>
     <a href="get_schedule2.php">Schedule</a>
     <a href="progressreport.php">Report Progress</a>
-    <a href="thesisdb.php" class="active">ThesisDB</a>
-    <a href="#">Panelists</a>
     <a href="submit_thesis.php">Submit Thesis</a>
     <a href="student_feedback.php">Feedback</a>
+    <a href="thesisdb.php" class="active">ThesisDB</a>
   </div>
   <?php endif; ?>
 
