@@ -45,7 +45,7 @@ The system consists of 14 relational tables with well-defined primary and foreig
    git clone https://github.com/your-username/thesis-management-system.git
    ```
 2. Move the project to your server's root directory (e.g., htdocs for XAMPP).
-3. Import the SQL file into phpMyAdmin to create the database and tables.
+3. Import the SQL file into phpMyAdmin to create the database and tables (preferably `thesis helper`).
 4. Start Apache and MySQL from your local server environment.
 5. Go to `C:\xampp\php\php.ini` and set these variables to the given number (Not necessary if already set to a higher value).
     - upload_max_filesize = 10M
